@@ -23,7 +23,7 @@ if (file.exists("GSE120891_table.RData")) {
   save(raw_counts_table, file = "GSE120891_table.RData")
 }
 
-raw_counts_table
+head(raw_counts_table)
 ```
 
 The dataset that I chose is [GSE120891](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE120891) (Differential expression of genes in fibroblasts and epithelial cells infected with dsDNA viruses), which consists of RNA-seq data for fibroblast and epithelial cells that have either been infected by a mock virus (control condition) or infected with one of three different types of viruses (HCMV/human cytomegalovirus/human betaherpesvirus 5 with three different strains TB40, FIX, and AD169; HSV1/herpes simplex virus; and Ad5/adenovirus serotype 5) in the test conditions.
@@ -130,7 +130,8 @@ non_missing_hgnc_rows <- rbind(non_missing_hgnc_rows, hgnchelper_annot_hgnc_rows
 num_hgncHelper_rows <- nrow(hgnchelper_annot_hgnc_rows)
 
 # Final gene HGNC mappings
-(counts_annot <- non_missing_hgnc_rows)
+counts_annot <- non_missing_hgnc_rows
+head(counts_annot)
 ```
 
 There were `r num_missing_hgnc` genes who could not be mapped to current HUGO symbols. `r  num_old_annot_hgnc` genes could still be mapped by using old (GRCh37) symbols, while an additional `r num_hgncHelper_rows` genes could be mapped by translating GRCh37 gene names into HGNC identifiers, which gives an end total of `r nrow(missing_hgnc_rows)` rows that could not be resolved to HUGO symbols. The remaining genes appear to largely be clone-based genes or Havana/Vega transcipts that are largely unannotated and do not have a HGNC identifier, and so were removed.
@@ -155,7 +156,7 @@ nonduplicated_rows <- counts_annot[!(counts_annot$hgnc_symbol %in% real_duplicat
 final_counts_annot <- rbind(nonduplicated_rows, summed_rows_hgnc)
 rownames(final_counts_annot) <- final_counts_annot$hgnc_symbol
 
-duplicated_rows
+head(duplicated_rows)
 ```
 
 There were `r num_duplicated_hgnc` rows with non-unique HUGO identifiers, though all but `r num_real_duplicated_hgnc` were the result of missing HUGO identifiers (and so not particularly relevant). Further analysis of the duplicates show that they invariably correspond to overlapping areas, usually splice variants. To resolve this issue and avoid the fragmentation of coutns for the same gene, each set of counts with the same HUGO identifier was added up.
@@ -219,7 +220,7 @@ d <- edgeR::DGEList(counts=filtered_data_matrix)
 d_normFactors <- edgeR::calcNormFactors(d)
 counts_normalized <- as.data.frame(edgeR::cpm(d_normFactors))
 
-counts_normalized
+head(counts_normalized)
 
 ```
 
