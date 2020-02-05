@@ -1,0 +1,277 @@
+---
+title: "Assignment 1"
+author: "Darren Chan"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+# Based on code by Ruth Isserlin (2020), BCB420 Lecture 4 - Exploring the data and basics of Normalization
+
+# Load the data if already downloaded
+if (file.exists("GSE120891_table.RData")) {
+  load("GSE120891_table.RData")
+} else {
+  # Otherwise, download it from the database
+  #gse <- GEOquery::getGEO("GSE120891",GSEMatrix=FALSE)
+  sfiles <- GEOquery::getGEOSuppFiles('GSE120891')
+  fnames <- rownames(sfiles)
+  
+  # we only want the counts file
+  raw_counts_table <- read.delim(fnames[grep("counts", fnames)], header=TRUE, check.names = FALSE)
+  save(raw_counts_table, file = "GSE120891_table.RData")
+}
+
+raw_counts_table
+```
+
+The dataset that I chose is [GSE120891](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE120891) (Differential expression of genes in fibroblasts and epithelial cells infected with dsDNA viruses), which consists of RNA-seq data for fibroblast and epithelial cells that have either been infected by a mock virus (control condition) or infected with one of three different types of viruses (HCMV/human cytomegalovirus/human betaherpesvirus 5 with three different strains TB40, FIX, and AD169; HSV1/herpes simplex virus; and Ad5/adenovirus serotype 5) in the test conditions.
+
+This dataset is of interest to me because it explores how cells change when exposed to viruses - either to try and fight off the invader or because of the effects of the virus within the cell as it aims to reproduce. This sort of data could hint at what sorts of molecular defenses the cell has - with potential applications in trying to boost the body's natural immunity - as well as what sorts of pathways viruses trigger to trick the cell into accepting its DNA and taking over.
+
+
+```{r}
+# Convert from counts to counts per million
+cpms <- edgeR::cpm(raw_counts_table[, 2:dim(raw_counts_table)[2]])
+
+# Get rid of low counts to clean - need at least 2 samples with 1 count per million
+keep <- rowSums(cpms > 1) >= 2
+counts_filtered <- raw_counts_table[keep, ]
+
+# Get the number of removed samples
+numRemoved <- nrow(raw_counts_table) - nrow(counts_filtered)
+```
+
+A total of `r numRemoved` genes were removed from the data set with a counts per million measurement too low to be reliably analyzed.
+
+
+```{r, warning = FALSE}
+# Set Ensembl gene IDs (without version numbers) as row names
+counts_table <- counts_filtered
+rownames(counts_table) <- gsub("\\..*", "", counts_filtered[, 1])
+colnames(counts_table)[1] <- "ensembl_gene_id_version"
+
+# Load Ensembl mart
+ensembl <- biomaRt::useEnsembl(biomart = "ensembl", mirror = "useast")
+ensembl <- biomaRt::useDataset("hsapiens_gene_ensembl",mart=ensembl)
+
+# Map to HUGO gene symbols
+conversion_stash <- "GSE120891_id_conversion.rds"
+if(file.exists(conversion_stash)){
+  GSE120891_id_conversion <- readRDS(conversion_stash)
+} else {
+  GSE120891_id_conversion <- biomaRt::getBM(attributes = c("ensembl_gene_id","hgnc_symbol"),
+                              filters = c("ensembl_gene_id"),
+                              values = rownames(counts_table),
+                              mart = ensembl)
+  saveRDS(GSE120891_id_conversion, conversion_stash)
+}
+
+counts_annot <- merge(GSE120891_id_conversion, counts_table, by.x = 1, by.y = 0, all.y=TRUE)
+
+# Check for and deal with missing gene symbols
+non_missing_hgnc_rows <- counts_annot[which(!is.na(counts_annot$hgnc_symbol) & counts_annot$hgnc_symbol != ""), ]
+missing_hgnc_rows <- counts_annot[which(is.na(counts_annot$hgnc_symbol) | counts_annot$hgnc_symbol == ""), ]
+rownames(missing_hgnc_rows) <- missing_hgnc_rows[, 1]
+num_missing_hgnc <- nrow(missing_hgnc_rows)
+
+# Load older Ensembl mart version
+grch37 <- biomaRt::useEnsembl(biomart="ensembl", GRCh=37)
+grch37 <- biomaRt::useDataset("hsapiens_gene_ensembl",mart=grch37)
+
+# Try to map missing genes with the older ensembl version
+grch37_conversion_stash <- "grch37_GSE120891_id_conversion.rds"
+if(file.exists(grch37_conversion_stash)){
+  grch37_GSE120891_id_conversion <- readRDS(grch37_conversion_stash)
+} else {
+  grch37_GSE120891_id_conversion <- biomaRt::getBM(attributes = c("ensembl_gene_id","hgnc_symbol"),
+                              filters = c("ensembl_gene_id"),
+                              values = missing_hgnc_rows$ensembl_gene_id,
+                              mart = grch37)
+  saveRDS(grch37_GSE120891_id_conversion, grch37_conversion_stash)
+}
+
+# Filter out the rows that have been newly matched and add them to the mapped table
+missing_hgnc_rows <- merge(grch37_GSE120891_id_conversion, missing_hgnc_rows[, -2], by.x = 1, by.y = 1, all.y=TRUE)
+old_annot_hgnc_rows <- missing_hgnc_rows[which(!is.na(missing_hgnc_rows$hgnc_symbol) & missing_hgnc_rows$hgnc_symbol != ""),  ]
+missing_hgnc_rows <- missing_hgnc_rows[which(is.na(missing_hgnc_rows$hgnc_symbol) | missing_hgnc_rows$hgnc_symbol == ""), ]
+non_missing_hgnc_rows <- rbind(non_missing_hgnc_rows, old_annot_hgnc_rows)
+num_old_annot_hgnc <- nrow(old_annot_hgnc_rows)
+
+# Try to identify remaining missing genes by gene name
+grch37_name_conversion_stash <- "grch37_name_GSE120891_id_conversion.rds"
+if(file.exists(grch37_name_conversion_stash)){
+  grch37_name_GSE120891_id_conversion <- readRDS(grch37_name_conversion_stash)
+} else {
+  grch37_name_GSE120891_id_conversion <- biomaRt::getBM(attributes = c("ensembl_gene_id","external_gene_name"),
+                              filters = c("ensembl_gene_id"),
+                              values = missing_hgnc_rows$ensembl_gene_id,
+                              mart = grch37)
+  saveRDS(grch37_name_GSE120891_id_conversion, grch37_name_conversion_stash)
+}
+
+# Use the HGNCHelper vignette for this
+if (! requireNamespace("HGNChelper", quietly = TRUE)) {
+  BiocManager::install("HGNChelper")
+}
+
+HGNChelperNames <- HGNChelper::checkGeneSymbols(grch37_name_GSE120891_id_conversion$external_gene_name)
+HGNChelperNames <- HGNChelperNames[which(!is.na(HGNChelperNames$Suggested.Symbol)), ]
+
+grch37_name_conversion <- merge(grch37_name_GSE120891_id_conversion, HGNChelperNames[, -2], by.x = 2, by.y = 1)
+colnames(grch37_name_conversion)[3] <- "hgnc_symbol"
+missing_hgnc_rows <- merge(grch37_name_conversion[-1], missing_hgnc_rows[, -2], by.x = 1, by.y = 1, all.y=TRUE)
+
+# Filter out the rows that matched rows
+hgnchelper_annot_hgnc_rows <- missing_hgnc_rows[which(!is.na(missing_hgnc_rows$hgnc_symbol)), ]
+missing_hgnc_rows <- missing_hgnc_rows[which(is.na(missing_hgnc_rows$hgnc_symbol)), ]
+non_missing_hgnc_rows <- rbind(non_missing_hgnc_rows, hgnchelper_annot_hgnc_rows)
+num_hgncHelper_rows <- nrow(hgnchelper_annot_hgnc_rows)
+
+# Final gene HGNC mappings
+(counts_annot <- non_missing_hgnc_rows)
+```
+
+There were `r num_missing_hgnc` genes who could not be mapped to current HUGO symbols. `r  num_old_annot_hgnc` genes could still be mapped by using old (GRCh37) symbols, while an additional `r num_hgncHelper_rows` genes could be mapped by translating GRCh37 gene names into HGNC identifiers, which gives an end total of `r nrow(missing_hgnc_rows)` rows that could not be resolved to HUGO symbols. The remaining genes appear to largely be clone-based genes or Havana/Vega transcipts that are largely unannotated and do not have a HGNC identifier, and so were removed.
+
+
+```{r}
+# Check for and non-unique genes (HGNC symbols)
+duplicated_hgnc <- counts_annot[duplicated(counts_annot$hgnc_symbol), ]
+num_duplicated_hgnc <- nrow(duplicated_hgnc)
+
+real_duplicated_hgnc <- duplicated_hgnc[which(!is.na(duplicated_hgnc$hgnc_symbol) & duplicated_hgnc$hgnc_symbol != ""), ]
+num_real_duplicated_hgnc <- nrow(real_duplicated_hgnc)
+duplicated_rows <- counts_annot[counts_annot$hgnc_symbol %in% real_duplicated_hgnc$hgnc_symbol, ]
+
+# Add up duplicate rows
+summed_rows_hgnc <- duplicated_rows[!duplicated(duplicated_rows$hgnc_symbol), ]
+for (i in seq_along(summed_rows_hgnc[, 1])) {
+  summed_rows_hgnc[i, 4:dim(summed_rows_hgnc)[2]] <- colSums(duplicated_rows[duplicated_rows$hgnc_symbol == summed_rows_hgnc$hgnc_symbol[i], 4:dim(duplicated_rows)[2]])
+}
+
+nonduplicated_rows <- counts_annot[!(counts_annot$hgnc_symbol %in% real_duplicated_hgnc$hgnc_symbol), ]
+final_counts_annot <- rbind(nonduplicated_rows, summed_rows_hgnc)
+rownames(final_counts_annot) <- final_counts_annot$hgnc_symbol
+
+duplicated_rows
+```
+
+There were `r num_duplicated_hgnc` rows with non-unique HUGO identifiers, though all but `r num_real_duplicated_hgnc` were the result of missing HUGO identifiers (and so not particularly relevant). Further analysis of the duplicates show that they invariably correspond to overlapping areas, usually splice variants. To resolve this issue and avoid the fragmentation of coutns for the same gene, each set of counts with the same HUGO identifier was added up.
+
+
+```{r}
+# Compute overview statistics
+initial_num_genes <- nrow(raw_counts_table)
+num_genes_high_cpm <- nrow(counts_filtered)
+num_genes_mapped <- nrow(non_missing_hgnc_rows)
+num_genes_unique <- nrow(final_counts_annot)
+
+```
+
+A total of `r initial_num_genes` transcripts were measured in the experiment. Of these, `r num_genes_high_cpm` (`r num_genes_high_cpm/initial_num_genes * 100`%) had a high enough counts per million measurement for the measurements to be reliable. Of the analyzable transcripts, `r num_genes_mapped` (`r num_genes_mapped/num_genes_high_cpm * 100`%) had valid HUGO identifiers that could be found with `r num_genes_unique` (`r num_genes_unique/num_genes_high_cpm * 100`%) corresponding to a unique HUGO identifier, giving a total final coverage of `r num_genes_mapped` genes, `r num_genes_mapped/initial_num_genes * 100`% of the original data set.
+
+Replicates were kept seperate throughout the process and in the final processed data. Since each experimental group only had 2 replicates, combining or averaging them together would not have made much of a difference to the overall size of the data set, and keeping both sets of data preserves more information, particularly if they diverge to a significant extent (with only 2 replicates, we cannot be sure which is the outlier - or if both are).
+
+
+```{r, warning = FALSE}
+# Draw a box plot of the pre-normalized data
+logPreNormData <- log2(edgeR::cpm(final_counts_annot[, 4:dim(final_counts_annot)[2]]))
+boxplot(logPreNormData, xlab = "Samples", ylab = "log2 CPM", 
+        las = 2, cex = 0.5, cex.lab = 0.5,
+        cex.axis = 0.5, main = "Pre-Normalized GSE120891 RNASeq Samples")
+abline(h = median(apply(logPreNormData, 2, median)), col = "green", lwd = 0.6, lty = "dashed")
+```
+
+```{r}
+# Draw a density plot of the pre-normalized data
+pre_counts_density <- apply(log2(edgeR::cpm(final_counts_annot[, 4:dim(final_counts_annot)[2]])), 2, density)
+
+# calculate the limits across all the samples
+xlim <- 0; ylim <- 0
+for (i in 1:length(pre_counts_density)) {
+  xlim <- range(c(xlim, pre_counts_density[[i]]$x)); 
+  ylim <- range(c(ylim, pre_counts_density[[i]]$y))
+}
+cols <- rainbow(length(pre_counts_density))
+ltys <- rep(1, length(pre_counts_density))
+#plot the first density plot to initialize the plot
+plot(pre_counts_density[[1]], xlim=xlim, ylim=ylim, type="n", 
+     ylab="Smoothing density of log2-CPM", main="", cex.lab = 0.85)
+#plot each line
+for (i in 1:length(pre_counts_density)) lines(pre_counts_density[[i]], col=cols[i], lty=ltys[i])
+#create legend
+legend("topright", colnames(logPreNormData),  
+       col=cols, lty=ltys, cex=0.75, 
+       border ="blue",  text.col = "green4", 
+       merge = TRUE, bg = "gray90")
+```
+
+The box plot and density plots indicate that there isn't a particularly large amount of variation between the samples as a whole, with medians approximately equal in the boxplots and the density distributions roughly aligned as well. Nevertheless, normalization can still help.
+
+
+```{r}
+# Perform Normalization
+filtered_data_matrix <- as.matrix(final_counts_annot[, 4:dim(final_counts_annot)[2]])
+rownames(filtered_data_matrix) <- final_counts_annot$hgnc_symbol
+d <- edgeR::DGEList(counts=filtered_data_matrix)
+d_normFactors <- edgeR::calcNormFactors(d)
+counts_normalized <- as.data.frame(edgeR::cpm(d_normFactors))
+
+counts_normalized
+
+```
+
+Trimmed Mean of M-values (TMM) was chosen as the normalization method as this is the standard method for normalizing RNA-seq data where our assumption is that the genes are not differentially expressed.
+
+
+```{r, warning = FALSE}
+# Draw a box plot of the post-normalized data
+logPostNormData <- log2(edgeR::cpm(counts_normalized[, 4:dim(counts_normalized)[2]]))
+boxplot(logPostNormData, xlab = "Samples", ylab = "log2 CPM", 
+        las = 2, cex = 0.5, cex.lab = 0.5,
+        cex.axis = 0.5, main = "Post-Normalized GSE120891 RNASeq Samples")
+abline(h = median(apply(logPostNormData, 2, median)), col = "green", lwd = 0.6, lty = "dashed")
+
+```
+
+As there was not very much variability between the samples in the first place, the post-normalized box plot appears quite similar to the pre-normalized box plot. However, the distribution of each group appears to be roughly in the same range, which indicates successful normalization.
+
+
+```{r}
+# Draw a density plot of the post-normalized data
+post_counts_density <- apply(log2(edgeR::cpm(counts_normalized[, 4:dim(counts_normalized)[2]])), 2, density)
+
+# calculate the limits across all the samples
+xlim <- 0; ylim <- 0
+for (i in 1:length(post_counts_density)) {
+  xlim <- range(c(xlim, post_counts_density[[i]]$x)); 
+  ylim <- range(c(ylim, post_counts_density[[i]]$y))
+}
+cols <- rainbow(length(post_counts_density))
+ltys <- rep(1, length(post_counts_density))
+#plot the first density plot to initialize the plot
+plot(post_counts_density[[1]], xlim=xlim, ylim=ylim, type="n", 
+     ylab="Smoothing density of log2-CPM", main="", cex.lab = 0.85)
+#plot each line
+for (i in 1:length(post_counts_density)) lines(post_counts_density[[i]], col=cols[i], lty=ltys[i])
+#create legend
+legend("topright", colnames(logPostNormData),  
+       col=cols, lty=ltys, cex=0.75, 
+       border ="blue",  text.col = "green4", 
+       merge = TRUE, bg = "gray90")
+
+```
+
+Just as in the box plot, the density plot has not changed substantially either (as the original density plot was not highly variant in the first place). Nonetheless it can be observed that the distribution near the lower values of log-counts per million is slightly more clustered and regular than from before normalization; most of the variation itself is now in the actual shape of the distributions, as is desired.<br>
+
+```{r}
+# Draw MDS plot of data
+limma::plotMDS(d_normFactors, col = c(RColorBrewer::brewer.pal(n = 8, name = "Paired"), 
+                                      RColorBrewer::brewer.pal(n = 7, name = "Paired")))
+
+```
+
+The MDS plot shows roughly three larger clusters of samples, with the replicates tending to be very close to each other and cells from the same cell line tending to be relatively close to each other, which is more or less as would be expected from the experimental setup. The lack of any samples wildly far away from anything else indicates that none of them are overall significant outliers. <br>
+
