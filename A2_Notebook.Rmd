@@ -13,7 +13,8 @@ nocite: |
 
 # Introduction
 
-Human cytomegalovirus (Human betaherpesvirus 5, HCMV, CMV) @griffiths2015pathogenesis @nogalski2019tumor
+Human cytomegalovirus (Human betaherpesvirus 5, HCMV, CMV) infections are found across a large proportion of the human population, though usually latent and asymptomatic (@nogalski2019tumor). However, they can sometimes cause infection in immunosuppressed individuals and have been associated with certain cancers (@griffiths2015pathogenesis) - in particular being observed to be induce a significant increase in transcription of HSATII, known to be associated with gene regulation of many different processes and implicated in many cancers (@hall2017demethylated).
+To test the effects of HCMV infection on cells, Human lung fibroblasts (MRC-5/MRC5), human retinal pigment epithelial (ARPE-19), and human foreskin fibroblasts (HFF) were infected with HCMV as well as herpes simplex virus (HSV1) and adenovirus serotype 5 (Ad5) as comparisons/controls, and RNASeq data taken from each sample using Illumina HiSeq 2000 (@hall2017demethylated).
 
 ```{r child='A1_Notebook.Rmd', include=FALSE, eval=TRUE}
 ```
@@ -212,11 +213,6 @@ A heatmap of all genes passing the Bonferroni multiple hypothesis correction tes
 
 ## Thresholded Over-Representation Analysis
 
-Which method did you choose and why?
-
-What annotation data did you use and why? What version of the annotation are you using?
-
-
 ```{r}
 # How many genesets were returned with what thresholds?
 if (!requireNamespace("gprofiler2", quietly = TRUE)) {
@@ -325,7 +321,7 @@ knitr::kable(wikipathways_ora_up$result[, c("term_id", "term_name", "term_size",
 
 ```
 
-The genesets associated with genes upregulated when infecting with HCMV as opposed to the mock infection skew very strongly towards biosynthetic pathways (Tables \@ref(goQueryUp), \@ref(reactomeQueryUp), and \@ref(wikiPathwaysQueryUp)) - in fact, other than the more general GO terms and those relating to cellular location, all of them relate to a biosynthetic pathway in some shape or form. There are none of the signalling or cell structure/interaction annotations that were seen in the combined list.<br><br>
+The genesets associated with genes upregulated when infecting with HCMV as opposed to the mock infection skew very strongly towards biosynthetic pathways (Tables \@ref(tab:goQueryUp), \@ref(tab:reactomeQueryUp), and \@ref(tab:wikiPathwaysQueryUp)) - in fact, other than the more general GO terms and those relating to cellular location, all of them relate to a biosynthetic pathway in some shape or form. There are none of the signalling or cell structure/interaction annotations that were seen in the combined list.<br><br>
 
 ```{r}
 
@@ -378,12 +374,12 @@ knitr::kable(wikipathways_ora_down$result[, c("term_id", "term_name", "term_size
 
 ```
 
-Predictably, the genesets associated with genes downregulated when infecting with HCMV as opposed to the mock infection are largely those of the other two main categories in the combined list, cell structure/interactions (particular those involving the attachment of the cell to the extracellular matrix or other cells, like focal adhesions and the various junction types) and to a somewhat lesser extent signalling pathways (Tables \@ref(goQueryDown), \@ref(reactomeQueryDown), and \@ref(wikiPathwaysQueryDown)). Very few of the biosynthetic pathways seen in the combined list appeared in the downregulated annotations list.<br><br>
+Predictably, the genesets associated with genes downregulated when infecting with HCMV as opposed to the mock infection are largely those of the other two main categories in the combined list, cell structure/interactions (particular those involving the attachment of the cell to the extracellular matrix or other cells, like focal adhesions and the various junction types) and to a somewhat lesser extent signalling pathways (Tables \@ref(tab:goQueryDown), \@ref(tab:reactomeQueryDown), and \@ref(tab:wikiPathwaysQueryDown)). Very few of the biosynthetic pathways seen in the combined list appeared in the downregulated annotations list.<br><br>
 
 ## Interpretation
 
-Do the over-representation results support conclusions or mechanism discussed in the original paper?
+The over-representation results would appear to support the hypothesis of HCMV infection resembling cancer phenotypes quite strongly. The upregulation of biosynthetic pathways can be related to the propensity of cancer (and viral-infected) cells to focus more of their nutrients towards cellular growth and replication (@nogalski2019tumor). Further support comes from the fact that the pathway with the strongest evidence for over-representation is that of cholesterol, high levels of which is known to be particularly associated with cancer (@ding2019role).<br>
 
-Can you find evidence, i.e. publications, to support some of the results that you see. How does this evidence support your results.
+The downregulation of cell structure/interaction genes, implying the loss of cellular structure and intercellular organization, are also strongly associated with cancer cell phenotypes (@hinck2014changes). The downregulation of genes associated with junctions and cellular adhesions is characteristic of the epithelial-mesenchymal transition that leads to metastasis in many cancers (@knights2012holding), as are changes in interactions with the extracellular matrix (@wolf2009mapping). Finally, changes in signalling pathways have long been known to be a core part of cancer cell progression, with the over-represented pathways including several known to be implicated in cancer occurence and progression, such as those of MET (@ho2015clinical), PI3K (@martini2014pi3k), and RHO GTPases (@vega2008rho). Given that nearly all of the more specific genesets identified by the threshold over-representation analysis have a strong relationship with some aspect of cancer cell phenotypes and oncological progression, we can safely say that our data supports the idea that HCMV infection changes gene regulation in a way that is similar to cancer cell expression profiles, and is possibly a driving factor in the incidence of the disease.<br>
 
 # References

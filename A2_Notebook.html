@@ -1663,6 +1663,7 @@ $(document).ready(function () {
 <li><a href="#differential-gene-expression-and-preliminary-ora-results-from-assignment-2"><span class="toc-section-number">3</span> Differential Gene Expression and Preliminary ORA (Results from Assignment 2)</a><ul>
 <li><a href="#differential-gene-expression"><span class="toc-section-number">3.1</span> Differential Gene Expression</a></li>
 <li><a href="#thresholded-over-representation-analysis"><span class="toc-section-number">3.2</span> Thresholded Over-Representation Analysis</a></li>
+<li><a href="#interpretation"><span class="toc-section-number">3.3</span> Interpretation</a></li>
 </ul></li>
 <li><a href="#references">References</a></li>
 </ul>
@@ -1670,7 +1671,8 @@ $(document).ready(function () {
 
 <div id="introduction" class="section level1">
 <h1><span class="header-section-number">1</span> Introduction</h1>
-<p>Herpes <span class="citation">Nogalski et al. (2019)</span></p>
+<p>Human cytomegalovirus (Human betaherpesvirus 5, HCMV, CMV) infections are found across a large proportion of the human population, though usually latent and asymptomatic (<span class="citation">Nogalski et al. (2019)</span>). However, they can sometimes cause infection in immunosuppressed individuals and have been associated with certain cancers (<span class="citation">Griffiths, Baraniak, and Reeves (2015)</span>) - in particular being observed to be induce a significant increase in transcription of HSATII, known to be associated with gene regulation of many different processes and implicated in many cancers (<span class="citation">Hall et al. (2017)</span>).
+To test the effects of HCMV infection on cells, Human lung fibroblasts (MRC-5/MRC5), human retinal pigment epithelial (ARPE-19), and human foreskin fibroblasts (HFF) were infected with HCMV as well as herpes simplex virus (HSV1) and adenovirus serotype 5 (Ad5) as comparisons/controls, and RNASeq data taken from each sample using Illumina HiSeq 2000 (<span class="citation">Hall et al. (2017)</span>).</p>
 </div>
 <div id="data-set-processing-and-normalization-results-from-assignment-1" class="section level1">
 <h1><span class="header-section-number">2</span> Data Set Processing and Normalization (Results from Assignment 1)</h1>
@@ -1904,7 +1906,7 @@ knitr::kable(samples, type=&quot;html&quot;, caption = &quot;Dataset Samples by 
 </tr>
 </tbody>
 </table>
-<p>Sample names were mapped to the two most important factors (infection agent and cell type). Given the inconsistent nature of the naming scheme (e.g. infection agent and cell type not in a consistent order, cell type not always explictly listed), a number of different manipulations were required. <br><br></p>
+<p>Sample names were mapped to the two most important factors (infection agent and cell type) (<a href="#tab:sampleTable">3.1</a>). Given the inconsistent nature of the naming scheme (e.g. infection agent and cell type not in a consistent order, cell type not always explictly listed), a number of different manipulations were required. <br><br></p>
 <pre class="r"><code># Removed unwanted samples
 excluded_columns &lt;- (grepl(&quot;HSV|Ad5&quot;, samples$infection_agent) | grepl(&quot;ARPE19|HFF&quot;, 
                                                                         samples$cell_type))
@@ -2070,7 +2072,7 @@ knitr::kable(head(normalized_samples_of_interest), type=&quot;html&quot;,
 </tr>
 </tbody>
 </table>
-<p>In our analysis, we will only be comparing CMV-infected samples with mock-infected negative controls on MRC5 cells due to large differences in the expression profiles of other infection agents and cell types. Therefore, the HSV1 and Ad5 infection samples as well as the ARPE19 and HFF cell type samples need to be removed. <br><br></p>
+<p>In our analysis, we will only be comparing CMV-infected samples with mock-infected negative controls on MRC5 cells due to large differences in the expression profiles of other infection agents and cell types. Therefore, the HSV1 and Ad5 infection samples as well as the ARPE19 and HFF cell type samples needed to be removed (Table <a href="#tab:normalizedSamplesTable">3.2</a>). <br><br></p>
 <pre class="r"><code># Arrange data into matrix
 heatmap_matrix &lt;- normalized_samples_of_interest[, -(1:3)]
 rownames(heatmap_matrix) &lt;- normalized_samples_of_interest$ensembl_gene_id
@@ -2186,8 +2188,6 @@ Figure 3.5: Heatmap of Statistically Significantly Differentially Expressed Gene
 </div>
 <div id="thresholded-over-representation-analysis" class="section level2">
 <h2><span class="header-section-number">3.2</span> Thresholded Over-Representation Analysis</h2>
-<p>Which method did you choose and why?</p>
-<p>What annotation data did you use and why? What version of the annotation are you using?</p>
 <pre class="r"><code># How many genesets were returned with what thresholds?
 if (!requireNamespace(&quot;gprofiler2&quot;, quietly = TRUE)) {
   install.packages(&quot;gprofiler2&quot;)
@@ -2779,10 +2779,6 @@ Using the standard threshold of 0.05, we get 291 terms from the GO query, 17 ter
 upregulated_genes &lt;- output_hits[significant_genes_logical &amp; output_hits$logFC &lt; 0, ]
 nrow(upregulated_genes)</code></pre>
 <pre><code>## [1] 976</code></pre>
-<pre class="r"><code># Get the list of downregulated genes
-downregulated_genes &lt;- output_hits[significant_genes_logical &amp; output_hits$logFC &gt; 0, ]
-nrow(downregulated_genes)</code></pre>
-<pre><code>## [1] 817</code></pre>
 <pre class="r"><code># Rerun the analyses with the upregulated genes
 go_ora_up &lt;- gprofiler2::gost(upregulated_genes$ensembl_gene_id, correction_method = &quot;bonferroni&quot;, sources = &quot;GO&quot;)
 length(go_ora_up$result$term_name)</code></pre>
@@ -3250,6 +3246,11 @@ length(wikipathways_ora_up$result$term_name)</code></pre>
 </tr>
 </tbody>
 </table>
+<p>The genesets associated with genes upregulated when infecting with HCMV as opposed to the mock infection skew very strongly towards biosynthetic pathways (Tables <a href="#tab:goQueryUp">3.6</a>, <a href="#tab:reactomeQueryUp">3.7</a>, and <a href="#tab:wikiPathwaysQueryUp">3.8</a>) - in fact, other than the more general GO terms and those relating to cellular location, all of them relate to a biosynthetic pathway in some shape or form. There are none of the signalling or cell structure/interaction annotations that were seen in the combined list.<br><br></p>
+<pre class="r"><code># Get the list of downregulated genes
+downregulated_genes &lt;- output_hits[significant_genes_logical &amp; output_hits$logFC &gt; 0, ]
+nrow(downregulated_genes)</code></pre>
+<pre><code>## [1] 817</code></pre>
 <pre class="r"><code># Rerun the analyses with the downregulated genes
 go_ora_down &lt;- gprofiler2::gost(downregulated_genes$ensembl_gene_id, correction_method = &quot;bonferroni&quot;, sources = &quot;GO&quot;)
 length(go_ora_down$result$term_name)</code></pre>
@@ -3967,29 +3968,39 @@ length(wikipathways_ora_down$result$term_name)</code></pre>
 <td align="right">0.0409357</td>
 <td align="right">0.1590909</td>
 </tr>
-<tr class="odd">
-<td align="left">## Interpret</td>
-<td align="left">ation</td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-</tr>
 </tbody>
 </table>
-<p>Do the over-representation results support conclusions or mechanism discussed in the original paper?</p>
-<p>Can you find evidence, i.e. publications, to support some of the results that you see. How does this evidence support your results.</p>
+<p>Predictably, the genesets associated with genes downregulated when infecting with HCMV as opposed to the mock infection are largely those of the other two main categories in the combined list, cell structure/interactions (particular those involving the attachment of the cell to the extracellular matrix or other cells, like focal adhesions and the various junction types) and to a somewhat lesser extent signalling pathways (Tables <a href="#tab:goQueryDown">3.9</a>, <a href="#tab:reactomeQueryDown">3.10</a>, and <a href="#tab:wikiPathwaysQueryDown">3.11</a>). Very few of the biosynthetic pathways seen in the combined list appeared in the downregulated annotations list.<br><br></p>
+</div>
+<div id="interpretation" class="section level2">
+<h2><span class="header-section-number">3.3</span> Interpretation</h2>
+<p>The over-representation results would appear to support the hypothesis of HCMV infection resembling cancer phenotypes quite strongly. The upregulation of biosynthetic pathways can be related to the propensity of cancer (and viral-infected) cells to focus more of their nutrients towards cellular growth and replication (<span class="citation">Nogalski et al. (2019)</span>). Further support comes from the fact that the pathway with the strongest evidence for over-representation is that of cholesterol, high levels of which is known to be particularly associated with cancer (<span class="citation">Ding et al. (2019)</span>).<br></p>
+<p>The downregulation of cell structure/interaction genes, implying the loss of cellular structure and intercellular organization, are also strongly associated with cancer cell phenotypes (<span class="citation">Hinck and Näthke (2014)</span>). The downregulation of genes associated with junctions and cellular adhesions is characteristic of the epithelial-mesenchymal transition that leads to metastasis in many cancers (<span class="citation">Knights et al. (2012)</span>), as are changes in interactions with the extracellular matrix (<span class="citation">Wolf and Friedl (2009)</span>). Finally, changes in signalling pathways have long been known to be a core part of cancer cell progression, with the over-represented pathways including several known to be implicated in cancer occurence and progression, such as those of MET (<span class="citation">Ho-Yen, Jones, and Kermorgant (2015)</span>), PI3K (<span class="citation">Martini et al. (2014)</span>), and RHO GTPases (<span class="citation">Vega and Ridley (2008)</span>). Given that nearly all of the more specific genesets identified by the threshold over-representation analysis have a strong relationship with some aspect of cancer cell phenotypes and oncological progression, we can safely say that our data supports the idea that HCMV infection changes gene regulation in a way that is similar to cancer cell expression profiles, and is possibly a driving factor in the incidence of the disease.<br></p>
 </div>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1>References</h1>
 <div id="refs" class="references">
+<div id="ref-ding2019role">
+<p>Ding, Xiao, Weihua Zhang, Song Li, and Hui Yang. 2019. “The Role of Cholesterol Metabolism in Cancer.” <em>American Journal of Cancer Research</em> 9 (2). e-Century Publishing Corporation: 219.</p>
+</div>
+<div id="ref-griffiths2015pathogenesis">
+<p>Griffiths, Paul, Ilona Baraniak, and Matt Reeves. 2015. “The Pathogenesis of Human Cytomegalovirus.” <em>The Journal of Pathology</em> 235 (2). Wiley Online Library: 288–97.</p>
+</div>
 <div id="ref-ComplexHeatmap">
 <p>Gu, Zuguang, Roland Eils, and Matthias Schlesner. 2016. “Complex Heatmaps Reveal Patterns and Correlations in Multidimensional Genomic Data.” <em>Bioinformatics</em>.</p>
 </div>
 <div id="ref-circlize">
 <p>Gu, Zuguang, Lei Gu, Roland Eils, Matthias Schlesner, and Benedikt Brors. 2014. “Circlize Implements and Enhances Circular Visualization in R.” <em>Bioinformatics</em> 30 (19): 2811–2.</p>
+</div>
+<div id="ref-hall2017demethylated">
+<p>Hall, Lisa L, Meg Byron, Dawn M Carone, Troy W Whitfield, Gayle P Pouliot, Andrew Fischer, Peter Jones, and Jeanne B Lawrence. 2017. “Demethylated Hsatii Dna and Hsatii Rna Foci Sequester Prc1 and Mecp2 into Cancer-Specific Nuclear Bodies.” <em>Cell Reports</em> 18 (12). Elsevier: 2943–56.</p>
+</div>
+<div id="ref-hinck2014changes">
+<p>Hinck, Lindsay, and Inke Näthke. 2014. “Changes in Cell and Tissue Organization in Cancer of the Breast and Colon.” <em>Current Opinion in Cell Biology</em> 26. Elsevier: 87–95.</p>
+</div>
+<div id="ref-ho2015clinical">
+<p>Ho-Yen, Colan M, J Louise Jones, and Stephanie Kermorgant. 2015. “The Clinical and Functional Significance of c-Met in Breast Cancer: A Review.” <em>Breast Cancer Research</em> 17 (1). BioMed Central: 52.</p>
 </div>
 <div id="ref-Biobase">
 <p>Huber, W., V. J. Carey, R. Gentleman, S. Anders, M. Carlson, B. S. Carvalho, H. C. Bravo, et al. 2015. “Orchestrating High-Throughput Genomic Analysis with Bioconductor.” <em>Nature Methods</em> 12 (2): 115–21. <a href="http://www.nature.com/nmeth/journal/v12/n2/full/nmeth.3252.html">http://www.nature.com/nmeth/journal/v12/n2/full/nmeth.3252.html</a>.</p>
@@ -4003,8 +4014,14 @@ length(wikipathways_ora_down$result$term_name)</code></pre>
 <div id="ref-isserlin_lec7_2020">
 <p>———. 2020c. “BCB420 Lecture 7 - Recap and Gsea.”</p>
 </div>
+<div id="ref-knights2012holding">
+<p>Knights, Alexander J, Alister PW Funnell, Merlin Crossley, and Richard CM Pearson. 2012. “Holding Tight: Cell Junctions and Cancer Spread.” <em>Trends in Cancer Research</em> 8. NIH Public Access: 61.</p>
+</div>
 <div id="ref-gprofiler2">
 <p>Kolberg, Liis, and Uku Raudvere. 2019. <em>Gprofiler2: Interface to the ’G:Profiler’ Toolset</em>. <a href="https://CRAN.R-project.org/package=gprofiler2">https://CRAN.R-project.org/package=gprofiler2</a>.</p>
+</div>
+<div id="ref-martini2014pi3k">
+<p>Martini, Miriam, Maria Chiara De Santis, Laura Braccini, Federico Gulluni, and Emilio Hirsch. 2014. “PI3K/Akt Signaling Pathway and Cancer: An Updated Review.” <em>Annals of Medicine</em> 46 (6). Taylor &amp; Francis: 372–83.</p>
 </div>
 <div id="ref-edgeR">
 <p>McCarthy, Davis J, Yunshun Chen, and Gordon K Smyth. 2012. “Differential Expression Analysis of Multifactor Rna-Seq Experiments with Respect to Biological Variation.” <em>Nucleic Acids Research</em> 40 (10): 4288–97. <a href="https://doi.org/10.1093/nar/gks042">https://doi.org/10.1093/nar/gks042</a>.</p>
@@ -4017,6 +4034,12 @@ length(wikipathways_ora_down$result$term_name)</code></pre>
 </div>
 <div id="ref-limma">
 <p>Ritchie, Matthew E, Belinda Phipson, Di Wu, Yifang Hu, Charity W Law, Wei Shi, and Gordon K Smyth. 2015. “limma Powers Differential Expression Analyses for RNA-Sequencing and Microarray Studies.” <em>Nucleic Acids Research</em> 43 (7): e47. <a href="https://doi.org/10.1093/nar/gkv007">https://doi.org/10.1093/nar/gkv007</a>.</p>
+</div>
+<div id="ref-vega2008rho">
+<p>Vega, Francisco M, and Anne J Ridley. 2008. “Rho Gtpases in Cancer Cell Biology.” <em>FEBS Letters</em> 582 (14). Wiley Online Library: 2093–2101.</p>
+</div>
+<div id="ref-wolf2009mapping">
+<p>Wolf, Katarina, and Peter Friedl. 2009. “Mapping Proteolytic Cancer Cell-Extracellular Matrix Interfaces.” <em>Clinical &amp; Experimental Metastasis</em> 26 (4). Springer: 289–98.</p>
 </div>
 <div id="ref-knitr">
 <p>Xie, Yihui. 2019. <em>Knitr: A General-Purpose Package for Dynamic Report Generation in R</em>. <a href="https://yihui.name/knitr/">https://yihui.name/knitr/</a>.</p>

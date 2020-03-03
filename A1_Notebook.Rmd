@@ -59,7 +59,7 @@ rownames(counts_table) <- gsub("\\..*", "", counts_filtered[, 1])
 colnames(counts_table)[1] <- "ensembl_gene_id_version"
 
 # Load Ensembl mart
-ensembl <- biomaRt::useEnsembl(biomart = "ensembl", mirror = "useast")
+ensembl <- biomaRt::useEnsembl(biomart = "ensembl", mirror = "uswest")
 ensembl <- biomaRt::useDataset("hsapiens_gene_ensembl",mart=ensembl)
 
 # Map to HUGO gene symbols
