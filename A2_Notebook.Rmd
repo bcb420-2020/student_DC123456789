@@ -7,11 +7,13 @@ output:
     toc: true
     fig_caption: yes
 bibliography: A2_bibliography.bib
+nocite: | 
+  @isserlin_lec6_2020, @isserlin_lec7_2020, @circlize, @Biobase, @r, @knitr
 ---
 
 # Introduction
 
-Herpes @nogalski2019tumor
+Human cytomegalovirus (Human betaherpesvirus 5, HCMV, CMV) @griffiths2015pathogenesis @nogalski2019tumor
 
 ```{r child='A1_Notebook.Rmd', include=FALSE, eval=TRUE}
 ```
@@ -20,7 +22,7 @@ Herpes @nogalski2019tumor
 
 ## Differential Gene Expression
 
-```{r}
+```{r sampleTable, fig.align='center'}
 
 # Break up the sample names into their constituent parts for mapping to factors
 samples <- data.frame(lapply(colnames(counts_normalized),
@@ -56,13 +58,14 @@ samples["infection_agent", ] <- gsub("^HCMV$", "HCMV-TB40", samples["infection_a
 hff_cells <- grepl("LNA", samples["cell_type", ])
 samples["cell_type", hff_cells] <- "HFF"
 
-(samples <- data.frame(t(samples)))
+samples <- data.frame(t(samples))
+knitr::kable(samples, type="html", caption = "Dataset Samples by Infection Agent and Cell Type")
 
 ```
 
-Sample names were mapped to the two most important factors (infection agent and cell type). Given the inconsistent nature of the naming scheme (e.g. infection agent and cell type not in a consistent order, cell type not always explictly listed), a number of different manipulations were required. <br><br>
+Sample names were mapped to the two most important factors (infection agent and cell type) (\@ref(tab:sampleTable)). Given the inconsistent nature of the naming scheme (e.g. infection agent and cell type not in a consistent order, cell type not always explictly listed), a number of different manipulations were required. <br><br>
 
-```{r}
+```{r normalizedSamplesTable, fig.align='center'}
 
 # Removed unwanted samples
 excluded_columns <- (grepl("HSV|Ad5", samples$infection_agent) | grepl("ARPE19|HFF", 
@@ -80,11 +83,12 @@ samples$infection_agent <- gsub("HCMV.*", "HCMV", samples$infection_agent)
 zero_rows <- apply(normalized_samples_of_interest[, -(1:3)], 1, function(x) !all(x == 0))
 normalized_samples_of_interest <- normalized_samples_of_interest[zero_rows, ]
 
-head(normalized_samples_of_interest)
+knitr::kable(head(normalized_samples_of_interest), type="html", 
+             caption = "Samples of Normalized Expression Data for Samples of Interest")
 
 ```
 
-In our analysis, we will only be comparing CMV-infected samples with mock-infected negative controls on MRC5 cells due to large differences in the expression profiles of other infection agents and cell types. Therefore, the HSV1 and Ad5 infection samples as well as the ARPE19 and HFF cell type samples need to be removed. <br><br>
+In our analysis, we will only be comparing CMV-infected samples with mock-infected negative controls on MRC5 cells due to large differences in the expression profiles of other infection agents and cell types. Therefore, the HSV1 and Ad5 infection samples as well as the ARPE19 and HFF cell type samples needed to be removed (Table \@ref(tab:normalizedSamplesTable)). <br><br>
 
 ```{r infTypeMdsFig, fig.align='center', fig.cap="MDS Plot of Normalized Data (Coloured by Infection Type - HCMV (Orange), Mock (Green))"}
 
@@ -212,29 +216,169 @@ Which method did you choose and why?
 
 What annotation data did you use and why? What version of the annotation are you using?
 
-```{r}
 
-# Get the list of upregulated genes
-upregulated_genes <- output_hits[output_hits$P.Value < 0.05 & output_hits$logFC > 0, ]
-length(upregulated_genes)
+```{r}
+# How many genesets were returned with what thresholds?
+if (!requireNamespace("gprofiler2", quietly = TRUE)) {
+  install.packages("gprofiler2")
+}
+
+# GO query
+significant_genes <- output_hits[significant_genes_logical,]
+go_ora <- gprofiler2::gost(significant_genes$ensembl_gene_id, correction_method = "bonferroni", sources = "GO")
+length(go_ora$result$term_name)
+```
+
+```{r goQuery, fig.align='center'}
+knitr::kable(go_ora$result[1:30, c("term_id", "term_name", "term_size", "p_value", "intersection_size", 
+                                   "precision", "recall", "source")],
+                                    type="html", caption = "Thresholded Over-Representation Analysis on GO")
 
 ```
+
+```{r}
+
+# Reactome query
+reactome_ora <- gprofiler2::gost(significant_genes$ensembl_gene_id, correction_method = "gSCS", sources = "REAC")
+length(reactome_ora$result$term_name)
+
+```
+
+```{r reactomeQuery, fig.align='center'}
+
+knitr::kable(reactome_ora$result[, c("term_id", "term_name", "term_size", "p_value", 
+                                     "intersection_size", "precision", "recall")],
+                                      type="html", caption = "Thresholded Over-Representation Analysis on Reactome")
+
+```
+
+```{r}
+
+# WikiPathways query
+wikipathways_ora <- gprofiler2::gost(significant_genes$ensembl_gene_id, correction_method = "gSCS", sources = "WP")
+length(wikipathways_ora$result$term_name)
+
+```
+
+```{r wikiPathwaysQuery, fig.align='center'}
+
+knitr::kable(wikipathways_ora$result[, c("term_id", "term_name", "term_size", "p_value", 
+                                         "intersection_size", "precision", "recall")],
+                                          type="html", caption = "Thresholded Over-Representation Analysis on WikiPathways")
+
+```
+
+Thresholded over-expression analysis was performed using the g:Profiler g:GOSt tool (@gprofiler2), using the hypergeometric/Fisher's exact test and the standard threshold of 0.05, for the three annotation databases GO, Reactome, and WikiPathways. Fisher's exact test was chosen as it is the preferred test for comparing the classification of discrete, categorical data (like our genes) between two different sets of categories (statistically signficiant expression differences or not, presence in a genelist or not). Bonferroni multiple hypothesis testing correction was used for GO due to the large size of the returned query, making it feasible to use the more powerful and conservative correction and still get a large, workable set of annotations, while the g:SCS algorithm was used for the Reactome and WikiPathways queries in order to get a larger list of plausible candidates. Of the annotation databases, GO was chosen as the best source of annotations for gene functions in general, while Reactome and WikiPathways were chosen as two separate but complementary sources to get a clearer idea of what pathways are possibly involved or affected. g:Profiler uses the most recent updates for these data resources - as of the time of analysis, the 2019-07-01 update for GO, the 2019-10-2 for Reactome, and the 20190910 update for WikiPathways.<br><br>
+Using the standard threshold of 0.05, we get `r length(go_ora$result$term_name)` terms from the GO query, `r length(reactome_ora$result$term_name)` terms from the GO query, and `r length(wikipathways_ora$result$term_name)` terms from the WikiPathways query. There is a good mix of terms, but other than the very general large GO terms they all cluster into about three categories: structure and extracellular interactions, signalling pathways, and biosynthetic pathways (Tables \@ref(tab:goQuery), \@ref(tab:reactomeQuery), and \@ref(tab:wikiPathwaysQuery)).
+<br><br>
+
+```{r}
+
+# Get the list of upregulated genes (compared to control/mock)
+# We are looking for low logFC values because it is currently reversed (fold-difference of mock compared to HCMV)
+upregulated_genes <- output_hits[significant_genes_logical & output_hits$logFC < 0, ]
+nrow(upregulated_genes)
+
+```
+
+```{r}
+
+# Rerun the analyses with the upregulated genes
+go_ora_up <- gprofiler2::gost(upregulated_genes$ensembl_gene_id, correction_method = "bonferroni", sources = "GO")
+length(go_ora_up$result$term_name)
+
+```
+
+```{r goQueryUp, fig.align='center'}
+knitr::kable(go_ora_up$result[1:30, c("term_id", "term_name", "term_size", "p_value", "intersection_size", 
+                                   "precision", "recall", "source")], type="html", 
+             caption = "Thresholded Over-Representation Analysis on GO for Upregualated Genes")
+```
+
+```{r}
+
+reactome_ora_up <- gprofiler2::gost(upregulated_genes$ensembl_gene_id, correction_method = "gSCS", sources = "REAC")
+length(reactome_ora_up$result$term_name)
+
+```
+
+```{r reactomeQueryUp, fig.align='center'}
+
+knitr::kable(reactome_ora_up$result[, c("term_id", "term_name", "term_size", "p_value", 
+                                     "intersection_size", "precision", "recall")], type="html", 
+             caption = "Thresholded Over-Representation Analysis on Reactome for Upregulated Genes")
+
+```
+
+```{r}
+
+wikipathways_ora_up <- gprofiler2::gost(upregulated_genes$ensembl_gene_id, correction_method = "gSCS", sources = "WP")
+length(wikipathways_ora_up$result$term_name)
+
+```
+
+```{r wikiPathwaysQueryUp, fig.align='center'}
+
+knitr::kable(wikipathways_ora_up$result[, c("term_id", "term_name", "term_size", "p_value", 
+                                         "intersection_size", "precision", "recall")], type="html", 
+             caption = "Thresholded Over-Representation Analysis on WikiPathways for Upregulated Genes")
+
+```
+
+The genesets associated with genes upregulated when infecting with HCMV as opposed to the mock infection skew very strongly towards biosynthetic pathways (Tables \@ref(goQueryUp), \@ref(reactomeQueryUp), and \@ref(wikiPathwaysQueryUp)) - in fact, other than the more general GO terms and those relating to cellular location, all of them relate to a biosynthetic pathway in some shape or form. There are none of the signalling or cell structure/interaction annotations that were seen in the combined list.<br><br>
 
 ```{r}
 
 # Get the list of downregulated genes
-downregulated_genes <- output_hits[output_hits$P.Value < 0.05 & output_hits$logFC < 0, ]
-length(downregulated_genes)
+downregulated_genes <- output_hits[significant_genes_logical & output_hits$logFC > 0, ]
+nrow(downregulated_genes)
 
 ```
 
 ```{r}
-# How many genesets were returned with what thresholds?
+
+# Rerun the analyses with the downregulated genes
+go_ora_down <- gprofiler2::gost(downregulated_genes$ensembl_gene_id, correction_method = "bonferroni", sources = "GO")
+length(go_ora_down$result$term_name)
+```
+
+```{r goQueryDown, fig.align='center'}
+knitr::kable(go_ora_down$result[1:30, c("term_id", "term_name", "term_size", "p_value", "intersection_size", 
+                                   "precision", "recall", "source")], type="html", 
+             caption = "Thresholded Over-Representation Analysis on GO for Downregulated Genes")
 ```
 
 ```{r}
-# Run the analysis using the up-regulated set of genes, and the down-regulated set of genes separately. How do these results compare to using the whole list (i.e all differentially expressed genes together vs. the up-regulated and down regulated differentially expressed genes separately)?
+
+reactome_ora_down <- gprofiler2::gost(downregulated_genes$ensembl_gene_id, correction_method = "gSCS", sources = "REAC")
+length(reactome_ora_down$result$term_name)
+
 ```
+
+```{r reactomeQueryDown, fig.align='center'}
+
+knitr::kable(reactome_ora_down$result[, c("term_id", "term_name", "term_size", "p_value", 
+                                     "intersection_size", "precision", "recall")], type="html", 
+             caption = "Thresholded Over-Representation Analysis on Reactome for Downregulated Genes")
+
+```
+
+```{r}
+
+wikipathways_ora_down <- gprofiler2::gost(downregulated_genes$ensembl_gene_id, correction_method = "gSCS", sources = "WP")
+length(wikipathways_ora_down$result$term_name)
+
+```
+
+```{r wikiPathwaysQueryDown, fig.align='center'}
+
+knitr::kable(wikipathways_ora_down$result[, c("term_id", "term_name", "term_size", "p_value", 
+                                         "intersection_size", "precision", "recall")], type="html", 
+             caption = "Thresholded Over-Representation Analysis on WikiPathways for Downregulated Genes")
+
+```
+
+Predictably, the genesets associated with genes downregulated when infecting with HCMV as opposed to the mock infection are largely those of the other two main categories in the combined list, cell structure/interactions (particular those involving the attachment of the cell to the extracellular matrix or other cells, like focal adhesions and the various junction types) and to a somewhat lesser extent signalling pathways (Tables \@ref(goQueryDown), \@ref(reactomeQueryDown), and \@ref(wikiPathwaysQueryDown)). Very few of the biosynthetic pathways seen in the combined list appeared in the downregulated annotations list.<br><br>
 
 ## Interpretation
 

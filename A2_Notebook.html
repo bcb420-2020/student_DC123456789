@@ -1663,7 +1663,6 @@ $(document).ready(function () {
 <li><a href="#differential-gene-expression-and-preliminary-ora-results-from-assignment-2"><span class="toc-section-number">3</span> Differential Gene Expression and Preliminary ORA (Results from Assignment 2)</a><ul>
 <li><a href="#differential-gene-expression"><span class="toc-section-number">3.1</span> Differential Gene Expression</a></li>
 <li><a href="#thresholded-over-representation-analysis"><span class="toc-section-number">3.2</span> Thresholded Over-Representation Analysis</a></li>
-<li><a href="#interpretation"><span class="toc-section-number">3.3</span> Interpretation</a></li>
 </ul></li>
 <li><a href="#references">References</a></li>
 </ul>
@@ -1741,12 +1740,170 @@ samples[&quot;infection_agent&quot;, ] &lt;- gsub(&quot;^HCMV$&quot;, &quot;HCMV
 hff_cells &lt;- grepl(&quot;LNA&quot;, samples[&quot;cell_type&quot;, ])
 samples[&quot;cell_type&quot;, hff_cells] &lt;- &quot;HFF&quot;
 
-(samples &lt;- data.frame(t(samples)))</code></pre>
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["infection_agent"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["cell_type"],"name":[2],"type":["fctr"],"align":["left"]}],"data":[{"1":"HCMV-AD169","2":"MRC5","_rn_":"AD169_MRC5_1","_row":"AD169_MRC5_1"},{"1":"HCMV-AD169","2":"MRC5","_rn_":"AD169_MRC5_2","_row":"AD169_MRC5_2"},{"1":"Ad5","2":"MRC5","_rn_":"Ad5_1","_row":"Ad5_1"},{"1":"HCMV-FIX","2":"MRC5","_rn_":"FIX_MRC5_1","_row":"FIX_MRC5_1"},{"1":"HCMV-FIX","2":"MRC5","_rn_":"FIX_MRC5_2","_row":"FIX_MRC5_2"},{"1":"Mock","2":"MRC5","_rn_":"Mock_24h_1","_row":"Mock_24h_1"},{"1":"Mock","2":"MRC5","_rn_":"Mock_24h_2","_row":"Mock_24h_2"},{"1":"Mock","2":"ARPE19","_rn_":"Mock_ARPE19_1","_row":"Mock_ARPE19_1"},{"1":"Mock","2":"ARPE19","_rn_":"Mock_ARPE19_2","_row":"Mock_ARPE19_2"},{"1":"Mock","2":"MRC5","_rn_":"Mock_9h_1","_row":"Mock_9h_1"},{"1":"Mock","2":"MRC5","_rn_":"Mock_9h_2","_row":"Mock_9h_2"},{"1":"Mock","2":"MRC5","_rn_":"Mock_MRC5_1","_row":"Mock_MRC5_1"},{"1":"Mock","2":"MRC5","_rn_":"Mock_MRC5_2","_row":"Mock_MRC5_2"},{"1":"Ad5","2":"MRC5","_rn_":"Ad5_2","_row":"Ad5_2"},{"1":"HSV","2":"MRC5","_rn_":"HSV_1","_row":"HSV_1"},{"1":"HSV","2":"MRC5","_rn_":"HSV_2","_row":"HSV_2"},{"1":"Mock","2":"HFF","_rn_":"NT-LNA_Mock_1","_row":"NT-LNA_Mock_1"},{"1":"Mock","2":"HFF","_rn_":"HSII-LNA_Mock_1","_row":"HSII-LNA_Mock_1"},{"1":"HCMV-TB40","2":"HFF","_rn_":"NT-LNA_HCMV_1","_row":"NT-LNA_HCMV_1"},{"1":"HCMV-TB40","2":"HFF","_rn_":"HSII-LNA_HCMV_1","_row":"HSII-LNA_HCMV_1"},{"1":"Mock","2":"HFF","_rn_":"NT-LNA_Mock_2","_row":"NT-LNA_Mock_2"},{"1":"Mock","2":"HFF","_rn_":"HSII-LNA_Mock_2","_row":"HSII-LNA_Mock_2"},{"1":"HCMV-TB40","2":"HFF","_rn_":"NT-LNA_HCMV_2","_row":"NT-LNA_HCMV_2"},{"1":"HCMV-TB40","2":"HFF","_rn_":"HSII-LNA_HCMV_2","_row":"HSII-LNA_HCMV_2"},{"1":"HCMV-TB40e","2":"ARPE19","_rn_":"TB40e_ARPE19_1","_row":"TB40e_ARPE19_1"},{"1":"HCMV-TB40e","2":"ARPE19","_rn_":"TB40e_ARPE19_1.1","_row":"TB40e_ARPE19_1.1"},{"1":"HCMV-TB40e","2":"MRC5","_rn_":"TB40e_MRC5_1","_row":"TB40e_MRC5_1"},{"1":"HCMV-TB40e","2":"MRC5","_rn_":"TB40e_MRC5_1.1","_row":"TB40e_MRC5_1.1"},{"1":"HCMV-TB40","2":"MRC5","_rn_":"TB40/E_MRC5_1","_row":"TB40/E_MRC5_1"},{"1":"HCMV-TB40","2":"MRC5","_rn_":"TB40/E_MRC5_1.1","_row":"TB40/E_MRC5_1.1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
+samples &lt;- data.frame(t(samples))
+knitr::kable(samples, type=&quot;html&quot;, caption = &quot;Dataset Samples by Infection Agent and Cell Type&quot;)</code></pre>
+<table>
+<caption><span id="tab:sampleTable">Table 3.1: </span>Dataset Samples by Infection Agent and Cell Type</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="left">infection_agent</th>
+<th align="left">cell_type</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>AD169_MRC5_1</td>
+<td align="left">HCMV-AD169</td>
+<td align="left">MRC5</td>
+</tr>
+<tr class="even">
+<td>AD169_MRC5_2</td>
+<td align="left">HCMV-AD169</td>
+<td align="left">MRC5</td>
+</tr>
+<tr class="odd">
+<td>Ad5_1</td>
+<td align="left">Ad5</td>
+<td align="left">MRC5</td>
+</tr>
+<tr class="even">
+<td>FIX_MRC5_1</td>
+<td align="left">HCMV-FIX</td>
+<td align="left">MRC5</td>
+</tr>
+<tr class="odd">
+<td>FIX_MRC5_2</td>
+<td align="left">HCMV-FIX</td>
+<td align="left">MRC5</td>
+</tr>
+<tr class="even">
+<td>Mock_24h_1</td>
+<td align="left">Mock</td>
+<td align="left">MRC5</td>
+</tr>
+<tr class="odd">
+<td>Mock_24h_2</td>
+<td align="left">Mock</td>
+<td align="left">MRC5</td>
+</tr>
+<tr class="even">
+<td>Mock_ARPE19_1</td>
+<td align="left">Mock</td>
+<td align="left">ARPE19</td>
+</tr>
+<tr class="odd">
+<td>Mock_ARPE19_2</td>
+<td align="left">Mock</td>
+<td align="left">ARPE19</td>
+</tr>
+<tr class="even">
+<td>Mock_9h_1</td>
+<td align="left">Mock</td>
+<td align="left">MRC5</td>
+</tr>
+<tr class="odd">
+<td>Mock_9h_2</td>
+<td align="left">Mock</td>
+<td align="left">MRC5</td>
+</tr>
+<tr class="even">
+<td>Mock_MRC5_1</td>
+<td align="left">Mock</td>
+<td align="left">MRC5</td>
+</tr>
+<tr class="odd">
+<td>Mock_MRC5_2</td>
+<td align="left">Mock</td>
+<td align="left">MRC5</td>
+</tr>
+<tr class="even">
+<td>Ad5_2</td>
+<td align="left">Ad5</td>
+<td align="left">MRC5</td>
+</tr>
+<tr class="odd">
+<td>HSV_1</td>
+<td align="left">HSV</td>
+<td align="left">MRC5</td>
+</tr>
+<tr class="even">
+<td>HSV_2</td>
+<td align="left">HSV</td>
+<td align="left">MRC5</td>
+</tr>
+<tr class="odd">
+<td>NT-LNA_Mock_1</td>
+<td align="left">Mock</td>
+<td align="left">HFF</td>
+</tr>
+<tr class="even">
+<td>HSII-LNA_Mock_1</td>
+<td align="left">Mock</td>
+<td align="left">HFF</td>
+</tr>
+<tr class="odd">
+<td>NT-LNA_HCMV_1</td>
+<td align="left">HCMV-TB40</td>
+<td align="left">HFF</td>
+</tr>
+<tr class="even">
+<td>HSII-LNA_HCMV_1</td>
+<td align="left">HCMV-TB40</td>
+<td align="left">HFF</td>
+</tr>
+<tr class="odd">
+<td>NT-LNA_Mock_2</td>
+<td align="left">Mock</td>
+<td align="left">HFF</td>
+</tr>
+<tr class="even">
+<td>HSII-LNA_Mock_2</td>
+<td align="left">Mock</td>
+<td align="left">HFF</td>
+</tr>
+<tr class="odd">
+<td>NT-LNA_HCMV_2</td>
+<td align="left">HCMV-TB40</td>
+<td align="left">HFF</td>
+</tr>
+<tr class="even">
+<td>HSII-LNA_HCMV_2</td>
+<td align="left">HCMV-TB40</td>
+<td align="left">HFF</td>
+</tr>
+<tr class="odd">
+<td>TB40e_ARPE19_1</td>
+<td align="left">HCMV-TB40e</td>
+<td align="left">ARPE19</td>
+</tr>
+<tr class="even">
+<td>TB40e_ARPE19_1.1</td>
+<td align="left">HCMV-TB40e</td>
+<td align="left">ARPE19</td>
+</tr>
+<tr class="odd">
+<td>TB40e_MRC5_1</td>
+<td align="left">HCMV-TB40e</td>
+<td align="left">MRC5</td>
+</tr>
+<tr class="even">
+<td>TB40e_MRC5_1.1</td>
+<td align="left">HCMV-TB40e</td>
+<td align="left">MRC5</td>
+</tr>
+<tr class="odd">
+<td>TB40/E_MRC5_1</td>
+<td align="left">HCMV-TB40</td>
+<td align="left">MRC5</td>
+</tr>
+<tr class="even">
+<td>TB40/E_MRC5_1.1</td>
+<td align="left">HCMV-TB40</td>
+<td align="left">MRC5</td>
+</tr>
+</tbody>
+</table>
 <p>Sample names were mapped to the two most important factors (infection agent and cell type). Given the inconsistent nature of the naming scheme (e.g. infection agent and cell type not in a consistent order, cell type not always explictly listed), a number of different manipulations were required. <br><br></p>
 <pre class="r"><code># Removed unwanted samples
 excluded_columns &lt;- (grepl(&quot;HSV|Ad5&quot;, samples$infection_agent) | grepl(&quot;ARPE19|HFF&quot;, 
@@ -1764,12 +1921,155 @@ samples$infection_agent &lt;- gsub(&quot;HCMV.*&quot;, &quot;HCMV&quot;, samples
 zero_rows &lt;- apply(normalized_samples_of_interest[, -(1:3)], 1, function(x) !all(x == 0))
 normalized_samples_of_interest &lt;- normalized_samples_of_interest[zero_rows, ]
 
-head(normalized_samples_of_interest)</code></pre>
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["ensembl_gene_id"],"name":[1],"type":["chr"],"align":["left"]},{"label":["hgnc_symbol"],"name":[2],"type":["chr"],"align":["left"]},{"label":["ensembl_gene_id_version"],"name":[3],"type":["fctr"],"align":["left"]},{"label":["AD169_MRC5_1"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["AD169_MRC5_2"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["FIX_MRC5_1"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["FIX_MRC5_2"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["Mock_24h_1"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["Mock_24h_2"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["Mock_9h_1"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["Mock_9h_2"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["Mock_MRC5_1"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["Mock_MRC5_2"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["TB40e_MRC5_1"],"name":[14],"type":["dbl"],"align":["right"]},{"label":["TB40e_MRC5_1.1"],"name":[15],"type":["dbl"],"align":["right"]},{"label":["TB40/E_MRC5_1"],"name":[16],"type":["dbl"],"align":["right"]},{"label":["TB40/E_MRC5_1.1"],"name":[17],"type":["dbl"],"align":["right"]}],"data":[{"1":"ENSG00000000003","2":"TSPAN6","3":"ENSG00000000003.14","4":"32.41890","5":"34.17338","6":"30.51871","7":"27.24597","8":"29.68959","9":"32.53850","10":"37.38703","11":"36.63140","12":"37.65682","13":"45.534693","14":"30.24918","15":"28.17100","16":"32.10155","17":"28.94545","_rn_":"TSPAN6"},{"1":"ENSG00000000419","2":"DPM1","3":"ENSG00000000419.12","4":"34.76130","5":"35.25825","6":"48.28128","7":"51.79902","8":"46.56444","9":"43.80183","10":"40.45526","11":"42.00982","12":"34.21744","13":"33.966988","14":"53.36737","15":"45.02834","16":"56.20626","17":"56.09118","_rn_":"DPM1"},{"1":"ENSG00000000457","2":"SCYL3","3":"ENSG00000000457.13","4":"23.70515","5":"22.51103","6":"23.93489","7":"22.25615","8":"15.35231","9":"16.51955","10":"16.81848","11":"15.84453","12":"21.07724","13":"25.238629","14":"32.77953","15":"27.60531","16":"27.18921","17":"24.59613","_rn_":"SCYL3"},{"1":"ENSG00000000460","2":"C1orf112","3":"ENSG00000000460.16","4":"35.79196","5":"32.90770","6":"21.19164","7":"19.80085","8":"27.78641","9":"27.15714","10":"21.59129","11":"20.78686","12":"18.25518","13":"6.309657","14":"21.96803","15":"18.78066","16":"22.27687","17":"13.79783","_rn_":"C1orf112"},{"1":"ENSG00000000971","2":"CFH","3":"ENSG00000000971.15","4":"40.66416","5":"28.83944","6":"17.48825","7":"23.76102","8":"79.42600","9":"75.46430","10":"81.36508","11":"91.14241","12":"99.03655","13":"119.673166","14":"32.77953","15":"61.54627","16":"30.84490","17":"22.19651","_rn_":"CFH"},{"1":"ENSG00000001036","2":"FUCA2","3":"ENSG00000001036.13","4":"109.53089","5":"110.20462","6":"100.12879","7":"106.29095","8":"131.44622","9":"118.76554","10":"108.29737","11":"102.33533","12":"128.84452","13":"131.240871","14":"114.32579","15":"120.15100","16":"118.23879","17":"119.38122","_rn_":"FUCA2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
+knitr::kable(head(normalized_samples_of_interest), type=&quot;html&quot;, 
+             caption = &quot;Samples of Normalized Expression Data for Samples of Interest&quot;)</code></pre>
+<table>
+<caption><span id="tab:normalizedSamplesTable">Table 3.2: </span>Samples of Normalized Expression Data for Samples of Interest</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="left">ensembl_gene_id</th>
+<th align="left">hgnc_symbol</th>
+<th align="left">ensembl_gene_id_version</th>
+<th align="right">AD169_MRC5_1</th>
+<th align="right">AD169_MRC5_2</th>
+<th align="right">FIX_MRC5_1</th>
+<th align="right">FIX_MRC5_2</th>
+<th align="right">Mock_24h_1</th>
+<th align="right">Mock_24h_2</th>
+<th align="right">Mock_9h_1</th>
+<th align="right">Mock_9h_2</th>
+<th align="right">Mock_MRC5_1</th>
+<th align="right">Mock_MRC5_2</th>
+<th align="right">TB40e_MRC5_1</th>
+<th align="right">TB40e_MRC5_1.1</th>
+<th align="right">TB40/E_MRC5_1</th>
+<th align="right">TB40/E_MRC5_1.1</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>TSPAN6</td>
+<td align="left">ENSG00000000003</td>
+<td align="left">TSPAN6</td>
+<td align="left">ENSG00000000003.14</td>
+<td align="right">32.41890</td>
+<td align="right">34.17338</td>
+<td align="right">30.51871</td>
+<td align="right">27.24597</td>
+<td align="right">29.68959</td>
+<td align="right">32.53850</td>
+<td align="right">37.38703</td>
+<td align="right">36.63140</td>
+<td align="right">37.65682</td>
+<td align="right">45.534693</td>
+<td align="right">30.24918</td>
+<td align="right">28.17100</td>
+<td align="right">32.10155</td>
+<td align="right">28.94545</td>
+</tr>
+<tr class="even">
+<td>DPM1</td>
+<td align="left">ENSG00000000419</td>
+<td align="left">DPM1</td>
+<td align="left">ENSG00000000419.12</td>
+<td align="right">34.76130</td>
+<td align="right">35.25825</td>
+<td align="right">48.28128</td>
+<td align="right">51.79902</td>
+<td align="right">46.56444</td>
+<td align="right">43.80183</td>
+<td align="right">40.45526</td>
+<td align="right">42.00982</td>
+<td align="right">34.21744</td>
+<td align="right">33.966988</td>
+<td align="right">53.36737</td>
+<td align="right">45.02834</td>
+<td align="right">56.20626</td>
+<td align="right">56.09118</td>
+</tr>
+<tr class="odd">
+<td>SCYL3</td>
+<td align="left">ENSG00000000457</td>
+<td align="left">SCYL3</td>
+<td align="left">ENSG00000000457.13</td>
+<td align="right">23.70515</td>
+<td align="right">22.51103</td>
+<td align="right">23.93489</td>
+<td align="right">22.25615</td>
+<td align="right">15.35231</td>
+<td align="right">16.51955</td>
+<td align="right">16.81848</td>
+<td align="right">15.84453</td>
+<td align="right">21.07724</td>
+<td align="right">25.238629</td>
+<td align="right">32.77953</td>
+<td align="right">27.60531</td>
+<td align="right">27.18921</td>
+<td align="right">24.59613</td>
+</tr>
+<tr class="even">
+<td>C1orf112</td>
+<td align="left">ENSG00000000460</td>
+<td align="left">C1orf112</td>
+<td align="left">ENSG00000000460.16</td>
+<td align="right">35.79196</td>
+<td align="right">32.90770</td>
+<td align="right">21.19164</td>
+<td align="right">19.80085</td>
+<td align="right">27.78641</td>
+<td align="right">27.15714</td>
+<td align="right">21.59129</td>
+<td align="right">20.78686</td>
+<td align="right">18.25518</td>
+<td align="right">6.309657</td>
+<td align="right">21.96803</td>
+<td align="right">18.78066</td>
+<td align="right">22.27687</td>
+<td align="right">13.79783</td>
+</tr>
+<tr class="odd">
+<td>CFH</td>
+<td align="left">ENSG00000000971</td>
+<td align="left">CFH</td>
+<td align="left">ENSG00000000971.15</td>
+<td align="right">40.66416</td>
+<td align="right">28.83944</td>
+<td align="right">17.48825</td>
+<td align="right">23.76102</td>
+<td align="right">79.42600</td>
+<td align="right">75.46430</td>
+<td align="right">81.36508</td>
+<td align="right">91.14241</td>
+<td align="right">99.03655</td>
+<td align="right">119.673166</td>
+<td align="right">32.77953</td>
+<td align="right">61.54627</td>
+<td align="right">30.84490</td>
+<td align="right">22.19651</td>
+</tr>
+<tr class="even">
+<td>FUCA2</td>
+<td align="left">ENSG00000001036</td>
+<td align="left">FUCA2</td>
+<td align="left">ENSG00000001036.13</td>
+<td align="right">109.53089</td>
+<td align="right">110.20462</td>
+<td align="right">100.12879</td>
+<td align="right">106.29095</td>
+<td align="right">131.44622</td>
+<td align="right">118.76554</td>
+<td align="right">108.29737</td>
+<td align="right">102.33533</td>
+<td align="right">128.84452</td>
+<td align="right">131.240871</td>
+<td align="right">114.32579</td>
+<td align="right">120.15100</td>
+<td align="right">118.23879</td>
+<td align="right">119.38122</td>
+</tr>
+</tbody>
+</table>
 <p>In our analysis, we will only be comparing CMV-infected samples with mock-infected negative controls on MRC5 cells due to large differences in the expression profiles of other infection agents and cell types. Therefore, the HSV1 and Ad5 infection samples as well as the ARPE19 and HFF cell type samples need to be removed. <br><br></p>
 <pre class="r"><code># Arrange data into matrix
 heatmap_matrix &lt;- normalized_samples_of_interest[, -(1:3)]
@@ -1827,7 +2127,7 @@ output_hits &lt;- output_hits[order(output_hits$P.Value), ]
 # Get the number of genes that pass the threshold (p = 0.05)
 (num_significant_genes_simple &lt;- length(which(output_hits$P.Value &lt; 0.05)))</code></pre>
 <pre><code>## [1] 10127</code></pre>
-<p>An initial differential gene expression analysis on the two factors was done using code adapted from <span class="citation">Isserlin (2020)</span>, using the linear model of the Limma package <span class="citation">Ritchie et al. (2015)</span>. Using this, it was determined that 10127 out of 9 genes were significantly differentially expressed, given a threshold of <span class="math inline">\(p &lt; 0.05\)</span>. 0.05 was chosen for the threshold as it is the standard of choice, particularly for more exploratory data/experiments such as this one where we are more interested in screening for genes that might be worthy of further, more rigourous analysis under these conditions. <br><br></p>
+<p>An initial differential gene expression analysis on the two factors was done using code adapted from <span class="citation">Isserlin (2020a)</span>, using the linear model of the Limma package <span class="citation">Ritchie et al. (2015)</span>. Using this, it was determined that 10127 out of 9 genes were significantly differentially expressed, given a threshold of <span class="math inline">\(p &lt; 0.05\)</span>. 0.05 was chosen for the threshold as it is the standard of choice, particularly for more exploratory data/experiments such as this one where we are more interested in screening for genes that might be worthy of further, more rigourous analysis under these conditions. <br><br></p>
 <pre class="r"><code># Multiple hypothesis testing correction
 significant_genes_logical &lt;- p.adjust(output_hits$P.Value, method = &quot;bonferroni&quot;) &lt; 0.05
 (num_significant_genes_corrected &lt;- sum(significant_genes_logical))</code></pre>
@@ -1882,17 +2182,1802 @@ if(min(heatmap_matrix_tophits) == 0){
 Figure 3.5: Heatmap of Statistically Significantly Differentially Expressed Genes
 </p>
 </div>
-<p>A heatmap of all genes passing the Bonferroni multiple hypothesis correction test is displayed in Figure <a href="#fig:heatmap">3.5</a>, made using the ComplexHeatmap package (<span class="citation">Gu, Eils, and Schlesner (2016)</span>). There is a very strong clustering of the two factors, with all the HCMV-infected samples and all the mock-infected samples segregated into two highly distinct categories. This was also reflected in the genes, which were also cleanly seperated into two categories (either strong to very strongly expressed across the HCMV samples and weak to very weak in the mock or vice versa - there were virtually no cases of a gene whose change in expression in one particular was a different sign to any of the others in that factor), neatly seperating the heatmap into 4 strongly-coloured quadrants. While quite stark, it is not completely unexpected given the wide seperation of the conditions in the MDS plot (Figure <a href="#infTypeMdsFig:figs"><strong>??</strong></a> or the fact that this geneset was chosen using the generally highly conservative Bonferroni-corrected, which would ensure that only highly differentiated genes pass the filter and are plotted in the heatmap. The large number of statistically significant genes, even under the Bonferroni correction, may also be a reflection of a generally large change in expression overall between the two factors, so choosing the most differentiated ones is likely to reflect this as well.</p>
+<p>A heatmap of all genes passing the Bonferroni multiple hypothesis correction test is displayed in Figure <a href="#fig:heatmap">3.5</a>, made using the ComplexHeatmap package (<span class="citation">Gu, Eils, and Schlesner (2016)</span>) and adapted from code by <span class="citation">Isserlin (2020a)</span>. There is a very strong clustering of the two factors, with all the HCMV-infected samples and all the mock-infected samples segregated into two highly distinct categories. This was also reflected in the genes, which were also cleanly seperated into two categories (either strong to very strongly expressed across the HCMV samples and weak to very weak in the mock or vice versa - there were virtually no cases of a gene whose change in expression in one particular was a different sign to any of the others in that factor), neatly seperating the heatmap into 4 strongly-coloured quadrants. While quite stark, it is not completely unexpected given the wide seperation of the conditions in the MDS plot (Figure <a href="#infTypeMdsFig:figs"><strong>??</strong></a> or the fact that this geneset was chosen using the generally highly conservative Bonferroni-corrected, which would ensure that only highly differentiated genes pass the filter and are plotted in the heatmap. The large number of statistically significant genes, even under the Bonferroni correction, may also be a reflection of a generally large change in expression overall between the two factors, so choosing the most differentiated ones is likely to reflect this as well.</p>
 </div>
 <div id="thresholded-over-representation-analysis" class="section level2">
 <h2><span class="header-section-number">3.2</span> Thresholded Over-Representation Analysis</h2>
 <p>Which method did you choose and why?</p>
 <p>What annotation data did you use and why? What version of the annotation are you using?</p>
-<pre class="r"><code># How many genesets were returned with what thresholds?</code></pre>
-<pre class="r"><code># Run the analysis using the up-regulated set of genes, and the down-regulated set of genes separately. How do these results compare to using the whole list (i.e all differentially expressed genes together vs. the up-regulated and down regulated differentially expressed genes separately)?</code></pre>
-</div>
-<div id="interpretation" class="section level2">
-<h2><span class="header-section-number">3.3</span> Interpretation</h2>
+<pre class="r"><code># How many genesets were returned with what thresholds?
+if (!requireNamespace(&quot;gprofiler2&quot;, quietly = TRUE)) {
+  install.packages(&quot;gprofiler2&quot;)
+}
+
+# GO query
+significant_genes &lt;- output_hits[significant_genes_logical,]
+go_ora &lt;- gprofiler2::gost(significant_genes$ensembl_gene_id, correction_method = &quot;bonferroni&quot;, sources = &quot;GO&quot;)
+length(go_ora$result$term_name)</code></pre>
+<pre><code>## [1] 291</code></pre>
+<pre class="r"><code>knitr::kable(go_ora$result[1:30, c(&quot;term_id&quot;, &quot;term_name&quot;, &quot;term_size&quot;, &quot;p_value&quot;, &quot;intersection_size&quot;, 
+                                   &quot;precision&quot;, &quot;recall&quot;, &quot;source&quot;)],
+                                    type=&quot;html&quot;, caption = &quot;Thresholded Over-Representation Analysis on GO&quot;)</code></pre>
+<table>
+<caption><span id="tab:goQuery">Table 3.3: </span>Thresholded Over-Representation Analysis on GO</caption>
+<thead>
+<tr class="header">
+<th align="left">term_id</th>
+<th align="left">term_name</th>
+<th align="right">term_size</th>
+<th align="right">p_value</th>
+<th align="right">intersection_size</th>
+<th align="right">precision</th>
+<th align="right">recall</th>
+<th align="left">source</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><a href="GO:0044444" class="uri">GO:0044444</a></td>
+<td align="left">cytoplasmic part</td>
+<td align="right">9760</td>
+<td align="right">0</td>
+<td align="right">1073</td>
+<td align="right">0.6495157</td>
+<td align="right">0.1099385</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0005737" class="uri">GO:0005737</a></td>
+<td align="left">cytoplasm</td>
+<td align="right">11620</td>
+<td align="right">0</td>
+<td align="right">1223</td>
+<td align="right">0.7403148</td>
+<td align="right">0.1052496</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0044424" class="uri">GO:0044424</a></td>
+<td align="left">intracellular part</td>
+<td align="right">14552</td>
+<td align="right">0</td>
+<td align="right">1424</td>
+<td align="right">0.8619855</td>
+<td align="right">0.0978560</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0005622" class="uri">GO:0005622</a></td>
+<td align="left">intracellular</td>
+<td align="right">14596</td>
+<td align="right">0</td>
+<td align="right">1426</td>
+<td align="right">0.8631961</td>
+<td align="right">0.0976980</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0012505" class="uri">GO:0012505</a></td>
+<td align="left">endomembrane system</td>
+<td align="right">4490</td>
+<td align="right">0</td>
+<td align="right">547</td>
+<td align="right">0.3311138</td>
+<td align="right">0.1218263</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0009653" class="uri">GO:0009653</a></td>
+<td align="left">anatomical structure morphogenesis</td>
+<td align="right">2764</td>
+<td align="right">0</td>
+<td align="right">376</td>
+<td align="right">0.2378242</td>
+<td align="right">0.1360347</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0005515" class="uri">GO:0005515</a></td>
+<td align="left">protein binding</td>
+<td align="right">12715</td>
+<td align="right">0</td>
+<td align="right">1286</td>
+<td align="right">0.7943175</td>
+<td align="right">0.1011404</td>
+<td align="left"><a href="GO:MF" class="uri">GO:MF</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0043226" class="uri">GO:0043226</a></td>
+<td align="left">organelle</td>
+<td align="right">13667</td>
+<td align="right">0</td>
+<td align="right">1342</td>
+<td align="right">0.8123487</td>
+<td align="right">0.0981927</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0031982" class="uri">GO:0031982</a></td>
+<td align="left">vesicle</td>
+<td align="right">3891</td>
+<td align="right">0</td>
+<td align="right">476</td>
+<td align="right">0.2881356</td>
+<td align="right">0.1223336</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0043227" class="uri">GO:0043227</a></td>
+<td align="left">membrane-bounded organelle</td>
+<td align="right">12536</td>
+<td align="right">0</td>
+<td align="right">1244</td>
+<td align="right">0.7530266</td>
+<td align="right">0.0992342</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0070161" class="uri">GO:0070161</a></td>
+<td align="left">anchoring junction</td>
+<td align="right">561</td>
+<td align="right">0</td>
+<td align="right">109</td>
+<td align="right">0.0659806</td>
+<td align="right">0.1942959</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0005912" class="uri">GO:0005912</a></td>
+<td align="left">adherens junction</td>
+<td align="right">546</td>
+<td align="right">0</td>
+<td align="right">106</td>
+<td align="right">0.0641646</td>
+<td align="right">0.1941392</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0048731" class="uri">GO:0048731</a></td>
+<td align="left">system development</td>
+<td align="right">4967</td>
+<td align="right">0</td>
+<td align="right">581</td>
+<td align="right">0.3674889</td>
+<td align="right">0.1169720</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0016043" class="uri">GO:0016043</a></td>
+<td align="left">cellular component organization</td>
+<td align="right">6454</td>
+<td align="right">0</td>
+<td align="right">720</td>
+<td align="right">0.4554080</td>
+<td align="right">0.1115587</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0043229" class="uri">GO:0043229</a></td>
+<td align="left">intracellular organelle</td>
+<td align="right">12818</td>
+<td align="right">0</td>
+<td align="right">1260</td>
+<td align="right">0.7627119</td>
+<td align="right">0.0982993</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0022008" class="uri">GO:0022008</a></td>
+<td align="left">neurogenesis</td>
+<td align="right">1656</td>
+<td align="right">0</td>
+<td align="right">240</td>
+<td align="right">0.1518027</td>
+<td align="right">0.1449275</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0005783" class="uri">GO:0005783</a></td>
+<td align="left">endoplasmic reticulum</td>
+<td align="right">1925</td>
+<td align="right">0</td>
+<td align="right">264</td>
+<td align="right">0.1598063</td>
+<td align="right">0.1371429</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0030054" class="uri">GO:0030054</a></td>
+<td align="left">cell junction</td>
+<td align="right">1312</td>
+<td align="right">0</td>
+<td align="right">196</td>
+<td align="right">0.1186441</td>
+<td align="right">0.1493902</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0048699" class="uri">GO:0048699</a></td>
+<td align="left">generation of neurons</td>
+<td align="right">1556</td>
+<td align="right">0</td>
+<td align="right">228</td>
+<td align="right">0.1442125</td>
+<td align="right">0.1465296</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0031090" class="uri">GO:0031090</a></td>
+<td align="left">organelle membrane</td>
+<td align="right">3500</td>
+<td align="right">0</td>
+<td align="right">425</td>
+<td align="right">0.2572639</td>
+<td align="right">0.1214286</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0007399" class="uri">GO:0007399</a></td>
+<td align="left">nervous system development</td>
+<td align="right">2400</td>
+<td align="right">0</td>
+<td align="right">318</td>
+<td align="right">0.2011385</td>
+<td align="right">0.1325000</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0031175" class="uri">GO:0031175</a></td>
+<td align="left">neuron projection development</td>
+<td align="right">1004</td>
+<td align="right">0</td>
+<td align="right">163</td>
+<td align="right">0.1030993</td>
+<td align="right">0.1623506</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0071840" class="uri">GO:0071840</a></td>
+<td align="left">cellular component organization or biogenesis</td>
+<td align="right">6636</td>
+<td align="right">0</td>
+<td align="right">731</td>
+<td align="right">0.4623656</td>
+<td align="right">0.1101567</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0048666" class="uri">GO:0048666</a></td>
+<td align="left">neuron development</td>
+<td align="right">1131</td>
+<td align="right">0</td>
+<td align="right">178</td>
+<td align="right">0.1125870</td>
+<td align="right">0.1573828</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0048856" class="uri">GO:0048856</a></td>
+<td align="left">anatomical structure development</td>
+<td align="right">6028</td>
+<td align="right">0</td>
+<td align="right">674</td>
+<td align="right">0.4263125</td>
+<td align="right">0.1118115</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0000902" class="uri">GO:0000902</a></td>
+<td align="left">cell morphogenesis</td>
+<td align="right">1050</td>
+<td align="right">0</td>
+<td align="right">168</td>
+<td align="right">0.1062619</td>
+<td align="right">0.1600000</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0005925" class="uri">GO:0005925</a></td>
+<td align="left">focal adhesion</td>
+<td align="right">403</td>
+<td align="right">0</td>
+<td align="right">83</td>
+<td align="right">0.0502421</td>
+<td align="right">0.2059553</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0005924" class="uri">GO:0005924</a></td>
+<td align="left">cell-substrate adherens junction</td>
+<td align="right">406</td>
+<td align="right">0</td>
+<td align="right">83</td>
+<td align="right">0.0502421</td>
+<td align="right">0.2044335</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0048468" class="uri">GO:0048468</a></td>
+<td align="left">cell development</td>
+<td align="right">2196</td>
+<td align="right">0</td>
+<td align="right">294</td>
+<td align="right">0.1859583</td>
+<td align="right">0.1338798</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0007275" class="uri">GO:0007275</a></td>
+<td align="left">multicellular organism development</td>
+<td align="right">5532</td>
+<td align="right">0</td>
+<td align="right">625</td>
+<td align="right">0.3953194</td>
+<td align="right">0.1129790</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Reactome query
+reactome_ora &lt;- gprofiler2::gost(significant_genes$ensembl_gene_id, correction_method = &quot;gSCS&quot;, sources = &quot;REAC&quot;)
+length(reactome_ora$result$term_name)</code></pre>
+<pre><code>## [1] 17</code></pre>
+<pre class="r"><code>knitr::kable(reactome_ora$result[, c(&quot;term_id&quot;, &quot;term_name&quot;, &quot;term_size&quot;, &quot;p_value&quot;, 
+                                     &quot;intersection_size&quot;, &quot;precision&quot;, &quot;recall&quot;)],
+                                      type=&quot;html&quot;, caption = &quot;Thresholded Over-Representation Analysis on Reactome&quot;)</code></pre>
+<table>
+<caption><span id="tab:reactomeQuery">Table 3.4: </span>Thresholded Over-Representation Analysis on Reactome</caption>
+<thead>
+<tr class="header">
+<th align="left">term_id</th>
+<th align="left">term_name</th>
+<th align="right">term_size</th>
+<th align="right">p_value</th>
+<th align="right">intersection_size</th>
+<th align="right">precision</th>
+<th align="right">recall</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">REAC:R-HSA-1474244</td>
+<td align="left">Extracellular matrix organization</td>
+<td align="right">298</td>
+<td align="right">0.0000003</td>
+<td align="right">63</td>
+<td align="right">0.063</td>
+<td align="right">0.2114094</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-191273</td>
+<td align="left">Cholesterol biosynthesis</td>
+<td align="right">24</td>
+<td align="right">0.0000017</td>
+<td align="right">14</td>
+<td align="right">0.014</td>
+<td align="right">0.5833333</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-9006934</td>
+<td align="left">Signaling by Receptor Tyrosine Kinases</td>
+<td align="right">454</td>
+<td align="right">0.0000528</td>
+<td align="right">78</td>
+<td align="right">0.078</td>
+<td align="right">0.1718062</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-1474290</td>
+<td align="left">Collagen formation</td>
+<td align="right">89</td>
+<td align="right">0.0002089</td>
+<td align="right">25</td>
+<td align="right">0.025</td>
+<td align="right">0.2808989</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-2022090</td>
+<td align="left">Assembly of collagen fibrils and other multimeric structures</td>
+<td align="right">60</td>
+<td align="right">0.0006966</td>
+<td align="right">19</td>
+<td align="right">0.019</td>
+<td align="right">0.3166667</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-1474228</td>
+<td align="left">Degradation of the extracellular matrix</td>
+<td align="right">140</td>
+<td align="right">0.0008863</td>
+<td align="right">32</td>
+<td align="right">0.032</td>
+<td align="right">0.2285714</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-3000178</td>
+<td align="left">ECM proteoglycans</td>
+<td align="right">75</td>
+<td align="right">0.0018424</td>
+<td align="right">21</td>
+<td align="right">0.021</td>
+<td align="right">0.2800000</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-1442490</td>
+<td align="left">Collagen degradation</td>
+<td align="right">64</td>
+<td align="right">0.0020588</td>
+<td align="right">19</td>
+<td align="right">0.019</td>
+<td align="right">0.2968750</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-8874081</td>
+<td align="left">MET activates PTK2 signaling</td>
+<td align="right">30</td>
+<td align="right">0.0041285</td>
+<td align="right">12</td>
+<td align="right">0.012</td>
+<td align="right">0.4000000</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-1650814</td>
+<td align="left">Collagen biosynthesis and modifying enzymes</td>
+<td align="right">67</td>
+<td align="right">0.0043323</td>
+<td align="right">19</td>
+<td align="right">0.019</td>
+<td align="right">0.2835821</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-8948216</td>
+<td align="left">Collagen chain trimerization</td>
+<td align="right">44</td>
+<td align="right">0.0159582</td>
+<td align="right">14</td>
+<td align="right">0.014</td>
+<td align="right">0.3181818</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-1566948</td>
+<td align="left">Elastic fibre formation</td>
+<td align="right">44</td>
+<td align="right">0.0159582</td>
+<td align="right">14</td>
+<td align="right">0.014</td>
+<td align="right">0.3181818</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-8875878</td>
+<td align="left">MET promotes cell motility</td>
+<td align="right">40</td>
+<td align="right">0.0237144</td>
+<td align="right">13</td>
+<td align="right">0.013</td>
+<td align="right">0.3250000</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-6806834</td>
+<td align="left">Signaling by MET</td>
+<td align="right">77</td>
+<td align="right">0.0365170</td>
+<td align="right">19</td>
+<td align="right">0.019</td>
+<td align="right">0.2467532</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-6807062</td>
+<td align="left">Cholesterol biosynthesis via lathosterol</td>
+<td align="right">4</td>
+<td align="right">0.0395192</td>
+<td align="right">4</td>
+<td align="right">0.004</td>
+<td align="right">1.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-6807047</td>
+<td align="left">Cholesterol biosynthesis via desmosterol</td>
+<td align="right">4</td>
+<td align="right">0.0395192</td>
+<td align="right">4</td>
+<td align="right">0.004</td>
+<td align="right">1.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-2129379</td>
+<td align="left">Molecules associated with elastic fibres</td>
+<td align="right">37</td>
+<td align="right">0.0473275</td>
+<td align="right">12</td>
+<td align="right">0.012</td>
+<td align="right">0.3243243</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># WikiPathways query
+wikipathways_ora &lt;- gprofiler2::gost(significant_genes$ensembl_gene_id, correction_method = &quot;gSCS&quot;, sources = &quot;WP&quot;)
+length(wikipathways_ora$result$term_name)</code></pre>
+<pre><code>## [1] 6</code></pre>
+<pre class="r"><code>knitr::kable(wikipathways_ora$result[, c(&quot;term_id&quot;, &quot;term_name&quot;, &quot;term_size&quot;, &quot;p_value&quot;, 
+                                         &quot;intersection_size&quot;, &quot;precision&quot;, &quot;recall&quot;)],
+                                          type=&quot;html&quot;, caption = &quot;Thresholded Over-Representation Analysis on WikiPathways&quot;)</code></pre>
+<table>
+<caption><span id="tab:wikiPathwaysQuery">Table 3.5: </span>Thresholded Over-Representation Analysis on WikiPathways</caption>
+<thead>
+<tr class="header">
+<th align="left">term_id</th>
+<th align="left">term_name</th>
+<th align="right">term_size</th>
+<th align="right">p_value</th>
+<th align="right">intersection_size</th>
+<th align="right">precision</th>
+<th align="right">recall</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">WP:WP197</td>
+<td align="left">Cholesterol Biosynthesis Pathway</td>
+<td align="right">15</td>
+<td align="right">0.0000022</td>
+<td align="right">11</td>
+<td align="right">0.0160819</td>
+<td align="right">0.7333333</td>
+</tr>
+<tr class="even">
+<td align="left">WP:WP306</td>
+<td align="left">Focal Adhesion</td>
+<td align="right">198</td>
+<td align="right">0.0044827</td>
+<td align="right">40</td>
+<td align="right">0.0584795</td>
+<td align="right">0.2020202</td>
+</tr>
+<tr class="odd">
+<td align="left">WP:WP4540</td>
+<td align="left">Pathways Regulating Hippo Signaling</td>
+<td align="right">99</td>
+<td align="right">0.0093775</td>
+<td align="right">24</td>
+<td align="right">0.0350877</td>
+<td align="right">0.2424242</td>
+</tr>
+<tr class="even">
+<td align="left">WP:WP3932</td>
+<td align="left">Focal Adhesion-PI3K-Akt-mTOR-signaling pathway</td>
+<td align="right">303</td>
+<td align="right">0.0305693</td>
+<td align="right">52</td>
+<td align="right">0.0760234</td>
+<td align="right">0.1716172</td>
+</tr>
+<tr class="odd">
+<td align="left">WP:WP3963</td>
+<td align="left">Mevalonate pathway</td>
+<td align="right">7</td>
+<td align="right">0.0327112</td>
+<td align="right">5</td>
+<td align="right">0.0073099</td>
+<td align="right">0.7142857</td>
+</tr>
+<tr class="even">
+<td align="left">WP:WP3967</td>
+<td align="left">miR-509-3p alteration of YAP1/ECM axis</td>
+<td align="right">18</td>
+<td align="right">0.0353427</td>
+<td align="right">8</td>
+<td align="right">0.0116959</td>
+<td align="right">0.4444444</td>
+</tr>
+</tbody>
+</table>
+<p>Thresholded over-expression analysis was performed using the g:Profiler g:GOSt tool (<span class="citation">Kolberg and Raudvere (2019)</span>), using the hypergeometric/Fisher’s exact test and the standard threshold of 0.05, for the three annotation databases GO, Reactome, and WikiPathways. Fisher’s exact test was chosen as it is the preferred test for comparing the classification of discrete, categorical data (like our genes) between two different sets of categories (statistically signficiant expression differences or not, presence in a genelist or not). Bonferroni multiple hypothesis testing correction was used for GO due to the large size of the returned query, making it feasible to use the more powerful and conservative correction and still get a large, workable set of annotations, while the g:SCS algorithm was used for the Reactome and WikiPathways queries in order to get a larger list of plausible candidates. Of the annotation databases, GO was chosen as the best source of annotations for gene functions in general, while Reactome and WikiPathways were chosen as two separate but complementary sources to get a clearer idea of what pathways are possibly involved or affected. g:Profiler uses the most recent updates for these data resources - as of the time of analysis, the 2019-07-01 update for GO, the 2019-10-2 for Reactome, and the 20190910 update for WikiPathways.<br><br>
+Using the standard threshold of 0.05, we get 291 terms from the GO query, 17 terms from the GO query, and 6 terms from the WikiPathways query. There is a good mix of terms, but other than the very general large GO terms they all cluster into about three categories: structure and extracellular interactions, signalling pathways, and biosynthetic pathways (Tables <a href="#tab:goQuery">3.3</a>, <a href="#tab:reactomeQuery">3.4</a>, and <a href="#tab:wikiPathwaysQuery">3.5</a>).
+<br><br></p>
+<pre class="r"><code># Get the list of upregulated genes (compared to control/mock)
+# We are looking for low logFC values because it is currently reversed (fold-difference of mock compared to HCMV)
+upregulated_genes &lt;- output_hits[significant_genes_logical &amp; output_hits$logFC &lt; 0, ]
+nrow(upregulated_genes)</code></pre>
+<pre><code>## [1] 976</code></pre>
+<pre class="r"><code># Get the list of downregulated genes
+downregulated_genes &lt;- output_hits[significant_genes_logical &amp; output_hits$logFC &gt; 0, ]
+nrow(downregulated_genes)</code></pre>
+<pre><code>## [1] 817</code></pre>
+<pre class="r"><code># Rerun the analyses with the upregulated genes
+go_ora_up &lt;- gprofiler2::gost(upregulated_genes$ensembl_gene_id, correction_method = &quot;bonferroni&quot;, sources = &quot;GO&quot;)
+length(go_ora_up$result$term_name)</code></pre>
+<pre><code>## [1] 55</code></pre>
+<pre class="r"><code>knitr::kable(go_ora_up$result[1:30, c(&quot;term_id&quot;, &quot;term_name&quot;, &quot;term_size&quot;, &quot;p_value&quot;, &quot;intersection_size&quot;, 
+                                   &quot;precision&quot;, &quot;recall&quot;, &quot;source&quot;)], type=&quot;html&quot;, 
+             caption = &quot;Thresholded Over-Representation Analysis on GO for Upregualated Genes&quot;)</code></pre>
+<table>
+<caption><span id="tab:goQueryUp">Table 3.6: </span>Thresholded Over-Representation Analysis on GO for Upregualated Genes</caption>
+<thead>
+<tr class="header">
+<th align="left">term_id</th>
+<th align="left">term_name</th>
+<th align="right">term_size</th>
+<th align="right">p_value</th>
+<th align="right">intersection_size</th>
+<th align="right">precision</th>
+<th align="right">recall</th>
+<th align="left">source</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><a href="GO:0044444" class="uri">GO:0044444</a></td>
+<td align="left">cytoplasmic part</td>
+<td align="right">9760</td>
+<td align="right">0.0000001</td>
+<td align="right">558</td>
+<td align="right">0.6206897</td>
+<td align="right">0.0571721</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0005737" class="uri">GO:0005737</a></td>
+<td align="left">cytoplasm</td>
+<td align="right">11620</td>
+<td align="right">0.0000001</td>
+<td align="right">643</td>
+<td align="right">0.7152392</td>
+<td align="right">0.0553356</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0031090" class="uri">GO:0031090</a></td>
+<td align="left">organelle membrane</td>
+<td align="right">3500</td>
+<td align="right">0.0000003</td>
+<td align="right">241</td>
+<td align="right">0.2680756</td>
+<td align="right">0.0688571</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0005622" class="uri">GO:0005622</a></td>
+<td align="left">intracellular</td>
+<td align="right">14596</td>
+<td align="right">0.0000005</td>
+<td align="right">768</td>
+<td align="right">0.8542825</td>
+<td align="right">0.0526172</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0044424" class="uri">GO:0044424</a></td>
+<td align="left">intracellular part</td>
+<td align="right">14552</td>
+<td align="right">0.0000006</td>
+<td align="right">766</td>
+<td align="right">0.8520578</td>
+<td align="right">0.0526388</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0044429" class="uri">GO:0044429</a></td>
+<td align="left">mitochondrial part</td>
+<td align="right">1056</td>
+<td align="right">0.0000013</td>
+<td align="right">95</td>
+<td align="right">0.1056730</td>
+<td align="right">0.0899621</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:1902653" class="uri">GO:1902653</a></td>
+<td align="left">secondary alcohol biosynthetic process</td>
+<td align="right">75</td>
+<td align="right">0.0000014</td>
+<td align="right">20</td>
+<td align="right">0.0235018</td>
+<td align="right">0.2666667</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0005743" class="uri">GO:0005743</a></td>
+<td align="left">mitochondrial inner membrane</td>
+<td align="right">477</td>
+<td align="right">0.0000031</td>
+<td align="right">54</td>
+<td align="right">0.0600667</td>
+<td align="right">0.1132075</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0006695" class="uri">GO:0006695</a></td>
+<td align="left">cholesterol biosynthetic process</td>
+<td align="right">71</td>
+<td align="right">0.0000038</td>
+<td align="right">19</td>
+<td align="right">0.0223267</td>
+<td align="right">0.2676056</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0016126" class="uri">GO:0016126</a></td>
+<td align="left">sterol biosynthetic process</td>
+<td align="right">80</td>
+<td align="right">0.0000050</td>
+<td align="right">20</td>
+<td align="right">0.0235018</td>
+<td align="right">0.2500000</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0046165" class="uri">GO:0046165</a></td>
+<td align="left">alcohol biosynthetic process</td>
+<td align="right">173</td>
+<td align="right">0.0000052</td>
+<td align="right">30</td>
+<td align="right">0.0352526</td>
+<td align="right">0.1734104</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0031975" class="uri">GO:0031975</a></td>
+<td align="left">envelope</td>
+<td align="right">1202</td>
+<td align="right">0.0000070</td>
+<td align="right">102</td>
+<td align="right">0.1134594</td>
+<td align="right">0.0848586</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0031967" class="uri">GO:0031967</a></td>
+<td align="left">organelle envelope</td>
+<td align="right">1202</td>
+<td align="right">0.0000070</td>
+<td align="right">102</td>
+<td align="right">0.1134594</td>
+<td align="right">0.0848586</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0005739" class="uri">GO:0005739</a></td>
+<td align="left">mitochondrion</td>
+<td align="right">1621</td>
+<td align="right">0.0000113</td>
+<td align="right">127</td>
+<td align="right">0.1412681</td>
+<td align="right">0.0783467</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0019866" class="uri">GO:0019866</a></td>
+<td align="left">organelle inner membrane</td>
+<td align="right">538</td>
+<td align="right">0.0000127</td>
+<td align="right">57</td>
+<td align="right">0.0634038</td>
+<td align="right">0.1059480</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0031966" class="uri">GO:0031966</a></td>
+<td align="left">mitochondrial membrane</td>
+<td align="right">710</td>
+<td align="right">0.0000132</td>
+<td align="right">69</td>
+<td align="right">0.0767519</td>
+<td align="right">0.0971831</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0044297" class="uri">GO:0044297</a></td>
+<td align="left">cell body</td>
+<td align="right">576</td>
+<td align="right">0.0000240</td>
+<td align="right">59</td>
+<td align="right">0.0656285</td>
+<td align="right">0.1024306</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0005740" class="uri">GO:0005740</a></td>
+<td align="left">mitochondrial envelope</td>
+<td align="right">753</td>
+<td align="right">0.0000277</td>
+<td align="right">71</td>
+<td align="right">0.0789766</td>
+<td align="right">0.0942895</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:1902652" class="uri">GO:1902652</a></td>
+<td align="left">secondary alcohol metabolic process</td>
+<td align="right">161</td>
+<td align="right">0.0000775</td>
+<td align="right">27</td>
+<td align="right">0.0317274</td>
+<td align="right">0.1677019</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0043025" class="uri">GO:0043025</a></td>
+<td align="left">neuronal cell body</td>
+<td align="right">506</td>
+<td align="right">0.0001469</td>
+<td align="right">52</td>
+<td align="right">0.0578420</td>
+<td align="right">0.1027668</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0006066" class="uri">GO:0006066</a></td>
+<td align="left">alcohol metabolic process</td>
+<td align="right">372</td>
+<td align="right">0.0001895</td>
+<td align="right">44</td>
+<td align="right">0.0517039</td>
+<td align="right">0.1182796</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0005515" class="uri">GO:0005515</a></td>
+<td align="left">protein binding</td>
+<td align="right">12715</td>
+<td align="right">0.0007205</td>
+<td align="right">682</td>
+<td align="right">0.7750000</td>
+<td align="right">0.0536374</td>
+<td align="left"><a href="GO:MF" class="uri">GO:MF</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0036477" class="uri">GO:0036477</a></td>
+<td align="left">somatodendritic compartment</td>
+<td align="right">843</td>
+<td align="right">0.0010166</td>
+<td align="right">72</td>
+<td align="right">0.0800890</td>
+<td align="right">0.0854093</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:1901617" class="uri">GO:1901617</a></td>
+<td align="left">organic hydroxy compound biosynthetic process</td>
+<td align="right">266</td>
+<td align="right">0.0011605</td>
+<td align="right">34</td>
+<td align="right">0.0399530</td>
+<td align="right">0.1278195</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0005759" class="uri">GO:0005759</a></td>
+<td align="left">mitochondrial matrix</td>
+<td align="right">475</td>
+<td align="right">0.0016817</td>
+<td align="right">47</td>
+<td align="right">0.0522803</td>
+<td align="right">0.0989474</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0006694" class="uri">GO:0006694</a></td>
+<td align="left">steroid biosynthetic process</td>
+<td align="right">198</td>
+<td align="right">0.0017787</td>
+<td align="right">28</td>
+<td align="right">0.0329025</td>
+<td align="right">0.1414141</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0016020" class="uri">GO:0016020</a></td>
+<td align="left">membrane</td>
+<td align="right">9701</td>
+<td align="right">0.0030018</td>
+<td align="right">529</td>
+<td align="right">0.5884316</td>
+<td align="right">0.0545305</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0008203" class="uri">GO:0008203</a></td>
+<td align="left">cholesterol metabolic process</td>
+<td align="right">148</td>
+<td align="right">0.0038614</td>
+<td align="right">23</td>
+<td align="right">0.0270270</td>
+<td align="right">0.1554054</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0022857" class="uri">GO:0022857</a></td>
+<td align="left">transmembrane transporter activity</td>
+<td align="right">1066</td>
+<td align="right">0.0062758</td>
+<td align="right">85</td>
+<td align="right">0.0965909</td>
+<td align="right">0.0797373</td>
+<td align="left"><a href="GO:MF" class="uri">GO:MF</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0097458" class="uri">GO:0097458</a></td>
+<td align="left">neuron part</td>
+<td align="right">1771</td>
+<td align="right">0.0066511</td>
+<td align="right">124</td>
+<td align="right">0.1379310</td>
+<td align="right">0.0700169</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>reactome_ora_up &lt;- gprofiler2::gost(upregulated_genes$ensembl_gene_id, correction_method = &quot;gSCS&quot;, sources = &quot;REAC&quot;)
+length(reactome_ora_up$result$term_name)</code></pre>
+<pre><code>## [1] 8</code></pre>
+<pre class="r"><code>knitr::kable(reactome_ora_up$result[, c(&quot;term_id&quot;, &quot;term_name&quot;, &quot;term_size&quot;, &quot;p_value&quot;, 
+                                     &quot;intersection_size&quot;, &quot;precision&quot;, &quot;recall&quot;)], type=&quot;html&quot;, 
+             caption = &quot;Thresholded Over-Representation Analysis on Reactome for Upregulated Genes&quot;)</code></pre>
+<table>
+<caption><span id="tab:reactomeQueryUp">Table 3.7: </span>Thresholded Over-Representation Analysis on Reactome for Upregulated Genes</caption>
+<thead>
+<tr class="header">
+<th align="left">term_id</th>
+<th align="left">term_name</th>
+<th align="right">term_size</th>
+<th align="right">p_value</th>
+<th align="right">intersection_size</th>
+<th align="right">precision</th>
+<th align="right">recall</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">REAC:R-HSA-191273</td>
+<td align="left">Cholesterol biosynthesis</td>
+<td align="right">24</td>
+<td align="right">0.0000000</td>
+<td align="right">14</td>
+<td align="right">0.0265655</td>
+<td align="right">0.5833333</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-6807047</td>
+<td align="left">Cholesterol biosynthesis via desmosterol</td>
+<td align="right">4</td>
+<td align="right">0.0028093</td>
+<td align="right">4</td>
+<td align="right">0.0075901</td>
+<td align="right">1.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-6807062</td>
+<td align="left">Cholesterol biosynthesis via lathosterol</td>
+<td align="right">4</td>
+<td align="right">0.0028093</td>
+<td align="right">4</td>
+<td align="right">0.0075901</td>
+<td align="right">1.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-1430728</td>
+<td align="left">Metabolism</td>
+<td align="right">2071</td>
+<td align="right">0.0030312</td>
+<td align="right">144</td>
+<td align="right">0.2732448</td>
+<td align="right">0.0695316</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-2426168</td>
+<td align="left">Activation of gene expression by SREBF (SREBP)</td>
+<td align="right">40</td>
+<td align="right">0.0087728</td>
+<td align="right">10</td>
+<td align="right">0.0189753</td>
+<td align="right">0.2500000</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-556833</td>
+<td align="left">Metabolism of lipids</td>
+<td align="right">729</td>
+<td align="right">0.0093944</td>
+<td align="right">62</td>
+<td align="right">0.1176471</td>
+<td align="right">0.0850480</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-71403</td>
+<td align="left">Citric acid cycle (TCA cycle)</td>
+<td align="right">22</td>
+<td align="right">0.0299801</td>
+<td align="right">7</td>
+<td align="right">0.0132827</td>
+<td align="right">0.3181818</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-1268020</td>
+<td align="left">Mitochondrial protein import</td>
+<td align="right">65</td>
+<td align="right">0.0342956</td>
+<td align="right">12</td>
+<td align="right">0.0227704</td>
+<td align="right">0.1846154</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>wikipathways_ora_up &lt;- gprofiler2::gost(upregulated_genes$ensembl_gene_id, correction_method = &quot;gSCS&quot;, sources = &quot;WP&quot;)
+length(wikipathways_ora_up$result$term_name)</code></pre>
+<pre><code>## [1] 3</code></pre>
+<pre class="r"><code>knitr::kable(wikipathways_ora_up$result[, c(&quot;term_id&quot;, &quot;term_name&quot;, &quot;term_size&quot;, &quot;p_value&quot;, 
+                                         &quot;intersection_size&quot;, &quot;precision&quot;, &quot;recall&quot;)], type=&quot;html&quot;, 
+             caption = &quot;Thresholded Over-Representation Analysis on WikiPathways for Upregulated Genes&quot;)</code></pre>
+<table>
+<caption><span id="tab:wikiPathwaysQueryUp">Table 3.8: </span>Thresholded Over-Representation Analysis on WikiPathways for Upregulated Genes</caption>
+<thead>
+<tr class="header">
+<th align="left">term_id</th>
+<th align="left">term_name</th>
+<th align="right">term_size</th>
+<th align="right">p_value</th>
+<th align="right">intersection_size</th>
+<th align="right">precision</th>
+<th align="right">recall</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">WP:WP197</td>
+<td align="left">Cholesterol Biosynthesis Pathway</td>
+<td align="right">15</td>
+<td align="right">0.0000000</td>
+<td align="right">11</td>
+<td align="right">0.0321637</td>
+<td align="right">0.7333333</td>
+</tr>
+<tr class="even">
+<td align="left">WP:WP3963</td>
+<td align="left">Mevalonate pathway</td>
+<td align="right">7</td>
+<td align="right">0.0010592</td>
+<td align="right">5</td>
+<td align="right">0.0146199</td>
+<td align="right">0.7142857</td>
+</tr>
+<tr class="odd">
+<td align="left">WP:WP78</td>
+<td align="left">TCA Cycle (aka Krebs or citric acid cycle)</td>
+<td align="right">18</td>
+<td align="right">0.0308575</td>
+<td align="right">6</td>
+<td align="right">0.0175439</td>
+<td align="right">0.3333333</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Rerun the analyses with the downregulated genes
+go_ora_down &lt;- gprofiler2::gost(downregulated_genes$ensembl_gene_id, correction_method = &quot;bonferroni&quot;, sources = &quot;GO&quot;)
+length(go_ora_down$result$term_name)</code></pre>
+<pre><code>## [1] 311</code></pre>
+<pre class="r"><code>knitr::kable(go_ora_down$result[1:30, c(&quot;term_id&quot;, &quot;term_name&quot;, &quot;term_size&quot;, &quot;p_value&quot;, &quot;intersection_size&quot;, 
+                                   &quot;precision&quot;, &quot;recall&quot;, &quot;source&quot;)], type=&quot;html&quot;, 
+             caption = &quot;Thresholded Over-Representation Analysis on GO for Downregulated Genes&quot;)</code></pre>
+<table>
+<caption><span id="tab:goQueryDown">Table 3.9: </span>Thresholded Over-Representation Analysis on GO for Downregulated Genes</caption>
+<thead>
+<tr class="header">
+<th align="left">term_id</th>
+<th align="left">term_name</th>
+<th align="right">term_size</th>
+<th align="right">p_value</th>
+<th align="right">intersection_size</th>
+<th align="right">precision</th>
+<th align="right">recall</th>
+<th align="left">source</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><a href="GO:0005925" class="uri">GO:0005925</a></td>
+<td align="left">focal adhesion</td>
+<td align="right">403</td>
+<td align="right">0</td>
+<td align="right">72</td>
+<td align="right">0.0956175</td>
+<td align="right">0.1786600</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0005924" class="uri">GO:0005924</a></td>
+<td align="left">cell-substrate adherens junction</td>
+<td align="right">406</td>
+<td align="right">0</td>
+<td align="right">72</td>
+<td align="right">0.0956175</td>
+<td align="right">0.1773399</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0030055" class="uri">GO:0030055</a></td>
+<td align="left">cell-substrate junction</td>
+<td align="right">411</td>
+<td align="right">0</td>
+<td align="right">72</td>
+<td align="right">0.0956175</td>
+<td align="right">0.1751825</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0070161" class="uri">GO:0070161</a></td>
+<td align="left">anchoring junction</td>
+<td align="right">561</td>
+<td align="right">0</td>
+<td align="right">83</td>
+<td align="right">0.1102258</td>
+<td align="right">0.1479501</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0005912" class="uri">GO:0005912</a></td>
+<td align="left">adherens junction</td>
+<td align="right">546</td>
+<td align="right">0</td>
+<td align="right">81</td>
+<td align="right">0.1075697</td>
+<td align="right">0.1483516</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0009653" class="uri">GO:0009653</a></td>
+<td align="left">anatomical structure morphogenesis</td>
+<td align="right">2764</td>
+<td align="right">0</td>
+<td align="right">221</td>
+<td align="right">0.3027397</td>
+<td align="right">0.0799566</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0062023" class="uri">GO:0062023</a></td>
+<td align="left">collagen-containing extracellular matrix</td>
+<td align="right">405</td>
+<td align="right">0</td>
+<td align="right">65</td>
+<td align="right">0.0863214</td>
+<td align="right">0.1604938</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0030198" class="uri">GO:0030198</a></td>
+<td align="left">extracellular matrix organization</td>
+<td align="right">375</td>
+<td align="right">0</td>
+<td align="right">64</td>
+<td align="right">0.0876712</td>
+<td align="right">0.1706667</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0044444" class="uri">GO:0044444</a></td>
+<td align="left">cytoplasmic part</td>
+<td align="right">9760</td>
+<td align="right">0</td>
+<td align="right">515</td>
+<td align="right">0.6839309</td>
+<td align="right">0.0527664</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0005201" class="uri">GO:0005201</a></td>
+<td align="left">extracellular matrix structural constituent</td>
+<td align="right">165</td>
+<td align="right">0</td>
+<td align="right">41</td>
+<td align="right">0.0554804</td>
+<td align="right">0.2484848</td>
+<td align="left"><a href="GO:MF" class="uri">GO:MF</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0022610" class="uri">GO:0022610</a></td>
+<td align="left">biological adhesion</td>
+<td align="right">1428</td>
+<td align="right">0</td>
+<td align="right">136</td>
+<td align="right">0.1863014</td>
+<td align="right">0.0952381</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0005737" class="uri">GO:0005737</a></td>
+<td align="left">cytoplasm</td>
+<td align="right">11620</td>
+<td align="right">0</td>
+<td align="right">580</td>
+<td align="right">0.7702523</td>
+<td align="right">0.0499139</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0007155" class="uri">GO:0007155</a></td>
+<td align="left">cell adhesion</td>
+<td align="right">1421</td>
+<td align="right">0</td>
+<td align="right">135</td>
+<td align="right">0.1849315</td>
+<td align="right">0.0950035</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0043062" class="uri">GO:0043062</a></td>
+<td align="left">extracellular structure organization</td>
+<td align="right">429</td>
+<td align="right">0</td>
+<td align="right">64</td>
+<td align="right">0.0876712</td>
+<td align="right">0.1491841</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0012505" class="uri">GO:0012505</a></td>
+<td align="left">endomembrane system</td>
+<td align="right">4490</td>
+<td align="right">0</td>
+<td align="right">285</td>
+<td align="right">0.3784861</td>
+<td align="right">0.0634744</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0031012" class="uri">GO:0031012</a></td>
+<td align="left">extracellular matrix</td>
+<td align="right">530</td>
+<td align="right">0</td>
+<td align="right">69</td>
+<td align="right">0.0916335</td>
+<td align="right">0.1301887</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0031982" class="uri">GO:0031982</a></td>
+<td align="left">vesicle</td>
+<td align="right">3891</td>
+<td align="right">0</td>
+<td align="right">251</td>
+<td align="right">0.3333333</td>
+<td align="right">0.0645078</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0030054" class="uri">GO:0030054</a></td>
+<td align="left">cell junction</td>
+<td align="right">1312</td>
+<td align="right">0</td>
+<td align="right">117</td>
+<td align="right">0.1553785</td>
+<td align="right">0.0891768</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0016043" class="uri">GO:0016043</a></td>
+<td align="left">cellular component organization</td>
+<td align="right">6454</td>
+<td align="right">0</td>
+<td align="right">374</td>
+<td align="right">0.5123288</td>
+<td align="right">0.0579486</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0000902" class="uri">GO:0000902</a></td>
+<td align="left">cell morphogenesis</td>
+<td align="right">1050</td>
+<td align="right">0</td>
+<td align="right">104</td>
+<td align="right">0.1424658</td>
+<td align="right">0.0990476</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0048856" class="uri">GO:0048856</a></td>
+<td align="left">anatomical structure development</td>
+<td align="right">6028</td>
+<td align="right">0</td>
+<td align="right">354</td>
+<td align="right">0.4849315</td>
+<td align="right">0.0587259</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0071840" class="uri">GO:0071840</a></td>
+<td align="left">cellular component organization or biogenesis</td>
+<td align="right">6636</td>
+<td align="right">0</td>
+<td align="right">379</td>
+<td align="right">0.5191781</td>
+<td align="right">0.0571127</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0043226" class="uri">GO:0043226</a></td>
+<td align="left">organelle</td>
+<td align="right">13667</td>
+<td align="right">0</td>
+<td align="right">637</td>
+<td align="right">0.8459495</td>
+<td align="right">0.0466086</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0031589" class="uri">GO:0031589</a></td>
+<td align="left">cell-substrate adhesion</td>
+<td align="right">351</td>
+<td align="right">0</td>
+<td align="right">53</td>
+<td align="right">0.0726027</td>
+<td align="right">0.1509972</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0009611" class="uri">GO:0009611</a></td>
+<td align="left">response to wounding</td>
+<td align="right">692</td>
+<td align="right">0</td>
+<td align="right">78</td>
+<td align="right">0.1068493</td>
+<td align="right">0.1127168</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0032989" class="uri">GO:0032989</a></td>
+<td align="left">cellular component morphogenesis</td>
+<td align="right">1156</td>
+<td align="right">0</td>
+<td align="right">108</td>
+<td align="right">0.1479452</td>
+<td align="right">0.0934256</td>
+<td align="left"><a href="GO:BP" class="uri">GO:BP</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0070062" class="uri">GO:0070062</a></td>
+<td align="left">extracellular exosome</td>
+<td align="right">2143</td>
+<td align="right">0</td>
+<td align="right">159</td>
+<td align="right">0.2111554</td>
+<td align="right">0.0741951</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:1903561" class="uri">GO:1903561</a></td>
+<td align="left">extracellular vesicle</td>
+<td align="right">2166</td>
+<td align="right">0</td>
+<td align="right">160</td>
+<td align="right">0.2124834</td>
+<td align="right">0.0738689</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="GO:0005783" class="uri">GO:0005783</a></td>
+<td align="left">endoplasmic reticulum</td>
+<td align="right">1925</td>
+<td align="right">0</td>
+<td align="right">147</td>
+<td align="right">0.1952191</td>
+<td align="right">0.0763636</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+<tr class="even">
+<td align="left"><a href="GO:0043230" class="uri">GO:0043230</a></td>
+<td align="left">extracellular organelle</td>
+<td align="right">2171</td>
+<td align="right">0</td>
+<td align="right">160</td>
+<td align="right">0.2124834</td>
+<td align="right">0.0736988</td>
+<td align="left"><a href="GO:CC" class="uri">GO:CC</a></td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>reactome_ora_down &lt;- gprofiler2::gost(downregulated_genes$ensembl_gene_id, correction_method = &quot;gSCS&quot;, sources = &quot;REAC&quot;)
+length(reactome_ora_down$result$term_name)</code></pre>
+<pre><code>## [1] 31</code></pre>
+<pre class="r"><code>knitr::kable(reactome_ora_down$result[, c(&quot;term_id&quot;, &quot;term_name&quot;, &quot;term_size&quot;, &quot;p_value&quot;, 
+                                     &quot;intersection_size&quot;, &quot;precision&quot;, &quot;recall&quot;)], type=&quot;html&quot;, 
+             caption = &quot;Thresholded Over-Representation Analysis on Reactome for Downregulated Genes&quot;)</code></pre>
+<table>
+<caption><span id="tab:reactomeQueryDown">Table 3.10: </span>Thresholded Over-Representation Analysis on Reactome for Downregulated Genes</caption>
+<thead>
+<tr class="header">
+<th align="left">term_id</th>
+<th align="left">term_name</th>
+<th align="right">term_size</th>
+<th align="right">p_value</th>
+<th align="right">intersection_size</th>
+<th align="right">precision</th>
+<th align="right">recall</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">REAC:R-HSA-1474244</td>
+<td align="left">Extracellular matrix organization</td>
+<td align="right">298</td>
+<td align="right">0.0000000</td>
+<td align="right">58</td>
+<td align="right">0.1226216</td>
+<td align="right">0.1946309</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-1474228</td>
+<td align="left">Degradation of the extracellular matrix</td>
+<td align="right">140</td>
+<td align="right">0.0000000</td>
+<td align="right">29</td>
+<td align="right">0.0613108</td>
+<td align="right">0.2071429</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-1474290</td>
+<td align="left">Collagen formation</td>
+<td align="right">89</td>
+<td align="right">0.0000000</td>
+<td align="right">23</td>
+<td align="right">0.0486258</td>
+<td align="right">0.2584270</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-3000178</td>
+<td align="left">ECM proteoglycans</td>
+<td align="right">75</td>
+<td align="right">0.0000002</td>
+<td align="right">19</td>
+<td align="right">0.0401691</td>
+<td align="right">0.2533333</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-1650814</td>
+<td align="left">Collagen biosynthesis and modifying enzymes</td>
+<td align="right">67</td>
+<td align="right">0.0000002</td>
+<td align="right">18</td>
+<td align="right">0.0380550</td>
+<td align="right">0.2686567</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-2022090</td>
+<td align="left">Assembly of collagen fibrils and other multimeric structures</td>
+<td align="right">60</td>
+<td align="right">0.0000003</td>
+<td align="right">17</td>
+<td align="right">0.0359408</td>
+<td align="right">0.2833333</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-1442490</td>
+<td align="left">Collagen degradation</td>
+<td align="right">64</td>
+<td align="right">0.0000008</td>
+<td align="right">17</td>
+<td align="right">0.0359408</td>
+<td align="right">0.2656250</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-8874081</td>
+<td align="left">MET activates PTK2 signaling</td>
+<td align="right">30</td>
+<td align="right">0.0000011</td>
+<td align="right">12</td>
+<td align="right">0.0253700</td>
+<td align="right">0.4000000</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-8875878</td>
+<td align="left">MET promotes cell motility</td>
+<td align="right">40</td>
+<td align="right">0.0000045</td>
+<td align="right">13</td>
+<td align="right">0.0274841</td>
+<td align="right">0.3250000</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-8948216</td>
+<td align="left">Collagen chain trimerization</td>
+<td align="right">44</td>
+<td align="right">0.0000166</td>
+<td align="right">13</td>
+<td align="right">0.0274841</td>
+<td align="right">0.2954545</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-9006934</td>
+<td align="left">Signaling by Receptor Tyrosine Kinases</td>
+<td align="right">454</td>
+<td align="right">0.0000263</td>
+<td align="right">47</td>
+<td align="right">0.0993658</td>
+<td align="right">0.1035242</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-216083</td>
+<td align="left">Integrin cell surface interactions</td>
+<td align="right">84</td>
+<td align="right">0.0000643</td>
+<td align="right">17</td>
+<td align="right">0.0359408</td>
+<td align="right">0.2023810</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-6806834</td>
+<td align="left">Signaling by MET</td>
+<td align="right">77</td>
+<td align="right">0.0001024</td>
+<td align="right">16</td>
+<td align="right">0.0338266</td>
+<td align="right">0.2077922</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-1566948</td>
+<td align="left">Elastic fibre formation</td>
+<td align="right">44</td>
+<td align="right">0.0001488</td>
+<td align="right">12</td>
+<td align="right">0.0253700</td>
+<td align="right">0.2727273</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-446353</td>
+<td align="left">Cell-extracellular matrix interactions</td>
+<td align="right">18</td>
+<td align="right">0.0002074</td>
+<td align="right">8</td>
+<td align="right">0.0169133</td>
+<td align="right">0.4444444</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-445355</td>
+<td align="left">Smooth Muscle Contraction</td>
+<td align="right">38</td>
+<td align="right">0.0002395</td>
+<td align="right">11</td>
+<td align="right">0.0232558</td>
+<td align="right">0.2894737</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-3000171</td>
+<td align="left">Non-integrin membrane-ECM interactions</td>
+<td align="right">58</td>
+<td align="right">0.0005670</td>
+<td align="right">13</td>
+<td align="right">0.0274841</td>
+<td align="right">0.2241379</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-5627123</td>
+<td align="left">RHO GTPases activate PAKs</td>
+<td align="right">21</td>
+<td align="right">0.0008559</td>
+<td align="right">8</td>
+<td align="right">0.0169133</td>
+<td align="right">0.3809524</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-2129379</td>
+<td align="left">Molecules associated with elastic fibres</td>
+<td align="right">37</td>
+<td align="right">0.0015933</td>
+<td align="right">10</td>
+<td align="right">0.0211416</td>
+<td align="right">0.2702703</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-381426</td>
+<td align="left">Regulation of Insulin-like Growth Factor (IGF) transport and uptake by Insulin-like Growth Factor Binding Proteins (IGFBPs)</td>
+<td align="right">124</td>
+<td align="right">0.0044026</td>
+<td align="right">18</td>
+<td align="right">0.0380550</td>
+<td align="right">0.1451613</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-199991</td>
+<td align="left">Membrane Trafficking</td>
+<td align="right">626</td>
+<td align="right">0.0046726</td>
+<td align="right">52</td>
+<td align="right">0.1099366</td>
+<td align="right">0.0830671</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-3000170</td>
+<td align="left">Syndecan interactions</td>
+<td align="right">26</td>
+<td align="right">0.0053892</td>
+<td align="right">8</td>
+<td align="right">0.0169133</td>
+<td align="right">0.3076923</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-5653656</td>
+<td align="left">Vesicle-mediated transport</td>
+<td align="right">720</td>
+<td align="right">0.0071837</td>
+<td align="right">57</td>
+<td align="right">0.1205074</td>
+<td align="right">0.0791667</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-446728</td>
+<td align="left">Cell junction organization</td>
+<td align="right">91</td>
+<td align="right">0.0222940</td>
+<td align="right">14</td>
+<td align="right">0.0295983</td>
+<td align="right">0.1538462</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-1500931</td>
+<td align="left">Cell-Cell communication</td>
+<td align="right">127</td>
+<td align="right">0.0226238</td>
+<td align="right">17</td>
+<td align="right">0.0359408</td>
+<td align="right">0.1338583</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-422475</td>
+<td align="left">Axon guidance</td>
+<td align="right">550</td>
+<td align="right">0.0275698</td>
+<td align="right">45</td>
+<td align="right">0.0951374</td>
+<td align="right">0.0818182</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-2022923</td>
+<td align="left">Dermatan sulfate biosynthesis</td>
+<td align="right">11</td>
+<td align="right">0.0300985</td>
+<td align="right">5</td>
+<td align="right">0.0105708</td>
+<td align="right">0.4545455</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-8957275</td>
+<td align="left">Post-translational protein phosphorylation</td>
+<td align="right">107</td>
+<td align="right">0.0365339</td>
+<td align="right">15</td>
+<td align="right">0.0317125</td>
+<td align="right">0.1401869</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-76002</td>
+<td align="left">Platelet activation, signaling and aggregation</td>
+<td align="right">257</td>
+<td align="right">0.0393125</td>
+<td align="right">26</td>
+<td align="right">0.0549683</td>
+<td align="right">0.1011673</td>
+</tr>
+<tr class="even">
+<td align="left">REAC:R-HSA-948021</td>
+<td align="left">Transport to the Golgi and subsequent modification</td>
+<td align="right">186</td>
+<td align="right">0.0400437</td>
+<td align="right">21</td>
+<td align="right">0.0443975</td>
+<td align="right">0.1129032</td>
+</tr>
+<tr class="odd">
+<td align="left">REAC:R-HSA-2243919</td>
+<td align="left">Crosslinking of collagen fibrils</td>
+<td align="right">18</td>
+<td align="right">0.0423066</td>
+<td align="right">6</td>
+<td align="right">0.0126850</td>
+<td align="right">0.3333333</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>wikipathways_ora_down &lt;- gprofiler2::gost(downregulated_genes$ensembl_gene_id, correction_method = &quot;gSCS&quot;, sources = &quot;WP&quot;)
+length(wikipathways_ora_down$result$term_name)</code></pre>
+<pre><code>## [1] 8</code></pre>
+<pre class="r"><code>knitr::kable(wikipathways_ora_down$result[, c(&quot;term_id&quot;, &quot;term_name&quot;, &quot;term_size&quot;, &quot;p_value&quot;, 
+                                         &quot;intersection_size&quot;, &quot;precision&quot;, &quot;recall&quot;)], type=&quot;html&quot;, 
+             caption = &quot;Thresholded Over-Representation Analysis on WikiPathways for Downregulated Genes&quot;)</code></pre>
+<table>
+<caption><span id="tab:wikiPathwaysQueryDown">Table 3.11: </span>Thresholded Over-Representation Analysis on WikiPathways for Downregulated Genes</caption>
+<thead>
+<tr class="header">
+<th align="left">term_id</th>
+<th align="left">term_name</th>
+<th align="right">term_size</th>
+<th align="right">p_value</th>
+<th align="right">intersection_size</th>
+<th align="right">precision</th>
+<th align="right">recall</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">WP:WP306</td>
+<td align="left">Focal Adhesion</td>
+<td align="right">198</td>
+<td align="right">0.0000000</td>
+<td align="right">36</td>
+<td align="right">0.1052632</td>
+<td align="right">0.1818182</td>
+</tr>
+<tr class="even">
+<td align="left">WP:WP3932</td>
+<td align="left">Focal Adhesion-PI3K-Akt-mTOR-signaling pathway</td>
+<td align="right">303</td>
+<td align="right">0.0001420</td>
+<td align="right">37</td>
+<td align="right">0.1081871</td>
+<td align="right">0.1221122</td>
+</tr>
+<tr class="odd">
+<td align="left">WP:WP3967</td>
+<td align="left">miR-509-3p alteration of YAP1/ECM axis</td>
+<td align="right">18</td>
+<td align="right">0.0002087</td>
+<td align="right">8</td>
+<td align="right">0.0233918</td>
+<td align="right">0.4444444</td>
+</tr>
+<tr class="even">
+<td align="left">WP:WP3668</td>
+<td align="left">Hypothesized Pathways in Pathogenesis of Cardiovascular Disease</td>
+<td align="right">25</td>
+<td align="right">0.0003760</td>
+<td align="right">9</td>
+<td align="right">0.0263158</td>
+<td align="right">0.3600000</td>
+</tr>
+<tr class="odd">
+<td align="left">WP:WP4172</td>
+<td align="left">PI3K-Akt Signaling Pathway</td>
+<td align="right">340</td>
+<td align="right">0.0008868</td>
+<td align="right">38</td>
+<td align="right">0.1111111</td>
+<td align="right">0.1117647</td>
+</tr>
+<tr class="even">
+<td align="left">WP:WP2911</td>
+<td align="left">miRNA targets in ECM and membrane receptors</td>
+<td align="right">35</td>
+<td align="right">0.0011244</td>
+<td align="right">10</td>
+<td align="right">0.0292398</td>
+<td align="right">0.2857143</td>
+</tr>
+<tr class="odd">
+<td align="left">WP:WP51</td>
+<td align="left">Regulation of Actin Cytoskeleton</td>
+<td align="right">149</td>
+<td align="right">0.0129771</td>
+<td align="right">20</td>
+<td align="right">0.0584795</td>
+<td align="right">0.1342282</td>
+</tr>
+<tr class="even">
+<td align="left">WP:WP138</td>
+<td align="left">Androgen receptor signaling pathway</td>
+<td align="right">88</td>
+<td align="right">0.0245924</td>
+<td align="right">14</td>
+<td align="right">0.0409357</td>
+<td align="right">0.1590909</td>
+</tr>
+<tr class="odd">
+<td align="left">## Interpret</td>
+<td align="left">ation</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+</tbody>
+</table>
 <p>Do the over-representation results support conclusions or mechanism discussed in the original paper?</p>
 <p>Can you find evidence, i.e. publications, to support some of the results that you see. How does this evidence support your results.</p>
 </div>
@@ -1903,8 +3988,23 @@ Figure 3.5: Heatmap of Statistically Significantly Differentially Expressed Gene
 <div id="ref-ComplexHeatmap">
 <p>Gu, Zuguang, Roland Eils, and Matthias Schlesner. 2016. “Complex Heatmaps Reveal Patterns and Correlations in Multidimensional Genomic Data.” <em>Bioinformatics</em>.</p>
 </div>
+<div id="ref-circlize">
+<p>Gu, Zuguang, Lei Gu, Roland Eils, Matthias Schlesner, and Benedikt Brors. 2014. “Circlize Implements and Enhances Circular Visualization in R.” <em>Bioinformatics</em> 30 (19): 2811–2.</p>
+</div>
+<div id="ref-Biobase">
+<p>Huber, W., V. J. Carey, R. Gentleman, S. Anders, M. Carlson, B. S. Carvalho, H. C. Bravo, et al. 2015. “Orchestrating High-Throughput Genomic Analysis with Bioconductor.” <em>Nature Methods</em> 12 (2): 115–21. <a href="http://www.nature.com/nmeth/journal/v12/n2/full/nmeth.3252.html">http://www.nature.com/nmeth/journal/v12/n2/full/nmeth.3252.html</a>.</p>
+</div>
 <div id="ref-isserlin_lec5_2020">
-<p>Isserlin, Ruth. 2020. “BCB420 Lecture 5 - Differential Expression.”</p>
+<p>Isserlin, Ruth. 2020a. “BCB420 Lecture 5 - Differential Expression.”</p>
+</div>
+<div id="ref-isserlin_lec6_2020">
+<p>———. 2020b. “BCB420 Lecture 6 - Annotation Dataset and Intro to Pathway Analysis.”</p>
+</div>
+<div id="ref-isserlin_lec7_2020">
+<p>———. 2020c. “BCB420 Lecture 7 - Recap and Gsea.”</p>
+</div>
+<div id="ref-gprofiler2">
+<p>Kolberg, Liis, and Uku Raudvere. 2019. <em>Gprofiler2: Interface to the ’G:Profiler’ Toolset</em>. <a href="https://CRAN.R-project.org/package=gprofiler2">https://CRAN.R-project.org/package=gprofiler2</a>.</p>
 </div>
 <div id="ref-edgeR">
 <p>McCarthy, Davis J, Yunshun Chen, and Gordon K Smyth. 2012. “Differential Expression Analysis of Multifactor Rna-Seq Experiments with Respect to Biological Variation.” <em>Nucleic Acids Research</em> 40 (10): 4288–97. <a href="https://doi.org/10.1093/nar/gks042">https://doi.org/10.1093/nar/gks042</a>.</p>
@@ -1912,8 +4012,14 @@ Figure 3.5: Heatmap of Statistically Significantly Differentially Expressed Gene
 <div id="ref-nogalski2019tumor">
 <p>Nogalski, Maciej T, Alexander Solovyov, Anupriya S Kulkarni, Niyati Desai, Adam Oberstein, Arnold J Levine, David T Ting, Thomas Shenk, and Benjamin D Greenbaum. 2019. “A Tumor-Specific Endogenous Repetitive Element Is Induced by Herpesviruses.” <em>Nature Communications</em> 10 (1). Nature Publishing Group: 1–13.</p>
 </div>
+<div id="ref-r">
+<p>R Core Team. 2019. <em>R: A Language and Environment for Statistical Computing</em>. Vienna, Austria: R Foundation for Statistical Computing. <a href="https://www.R-project.org/">https://www.R-project.org/</a>.</p>
+</div>
 <div id="ref-limma">
 <p>Ritchie, Matthew E, Belinda Phipson, Di Wu, Yifang Hu, Charity W Law, Wei Shi, and Gordon K Smyth. 2015. “limma Powers Differential Expression Analyses for RNA-Sequencing and Microarray Studies.” <em>Nucleic Acids Research</em> 43 (7): e47. <a href="https://doi.org/10.1093/nar/gkv007">https://doi.org/10.1093/nar/gkv007</a>.</p>
+</div>
+<div id="ref-knitr">
+<p>Xie, Yihui. 2019. <em>Knitr: A General-Purpose Package for Dynamic Report Generation in R</em>. <a href="https://yihui.name/knitr/">https://yihui.name/knitr/</a>.</p>
 </div>
 </div>
 </div>

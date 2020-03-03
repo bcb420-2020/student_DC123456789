@@ -83,8 +83,8 @@ rownames(missing_hgnc_rows) <- missing_hgnc_rows[, 1]
 num_missing_hgnc <- nrow(missing_hgnc_rows)
 
 # Load older Ensembl mart version
-grch37 <- biomaRt::useEnsembl(biomart="ensembl", GRCh=37)
-grch37 <- biomaRt::useDataset("hsapiens_gene_ensembl",mart=grch37)
+grch37 <- biomaRt::useEnsembl(biomart="ensembl", GRCh=37, mirror = "uswest")
+grch37 <- biomaRt::useDataset("hsapiens_gene_ensembl", mart=grch37)
 
 # Try to map missing genes with the older ensembl version
 grch37_conversion_stash <- "grch37_GSE120891_id_conversion.rds"
