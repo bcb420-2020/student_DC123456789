@@ -6,6 +6,10 @@ output:
     df_print: paged
 ---
 
+# Data Set Processing and Normalization (Results from Assignment 1)
+
+## Data Set Selection and Acquisition
+
 ```{r}
 # Based on code by Ruth Isserlin (2020), BCB420 Lecture 4 - Exploring the data and basics of Normalization
 
@@ -30,6 +34,7 @@ The dataset that I chose is [GSE120891](https://www.ncbi.nlm.nih.gov/geo/query/a
 
 This dataset is of interest to me because it explores how cells change when exposed to viruses - either to try and fight off the invader or because of the effects of the virus within the cell as it aims to reproduce. This sort of data could hint at what sorts of molecular defenses the cell has - with potential applications in trying to boost the body's natural immunity - as well as what sorts of pathways viruses trigger to trick the cell into accepting its DNA and taking over.
 
+## Data Set Cleaning
 
 ```{r}
 # Convert from counts to counts per million
@@ -45,6 +50,7 @@ numRemoved <- nrow(raw_counts_table) - nrow(counts_filtered)
 
 A total of `r numRemoved` genes were removed from the data set with a counts per million measurement too low to be reliably analyzed.
 
+## Identifier Mapping
 
 ```{r, warning = FALSE}
 # Set Ensembl gene IDs (without version numbers) as row names
@@ -156,11 +162,15 @@ nonduplicated_rows <- counts_annot[!(counts_annot$hgnc_symbol %in% real_duplicat
 final_counts_annot <- rbind(nonduplicated_rows, summed_rows_hgnc)
 rownames(final_counts_annot) <- final_counts_annot$hgnc_symbol
 
+# Merge rows with duplicated ensembl IDs
+final_counts_annot <- dplyr::distinct(final_counts_annot, ensembl_gene_id, .keep_all = TRUE)
+
 head(duplicated_rows)
 ```
 
 There were `r num_duplicated_hgnc` rows with non-unique HUGO identifiers, though all but `r num_real_duplicated_hgnc` were the result of missing HUGO identifiers (and so not particularly relevant). Further analysis of the duplicates show that they invariably correspond to overlapping areas, usually splice variants. To resolve this issue and avoid the fragmentation of coutns for the same gene, each set of counts with the same HUGO identifier was added up.
 
+## Dataset Overview Statistics
 
 ```{r}
 # Compute overview statistics
@@ -175,6 +185,7 @@ A total of `r initial_num_genes` transcripts were measured in the experiment. Of
 
 Replicates were kept seperate throughout the process and in the final processed data. Since each experimental group only had 2 replicates, combining or averaging them together would not have made much of a difference to the overall size of the data set, and keeping both sets of data preserves more information, particularly if they diverge to a significant extent (with only 2 replicates, we cannot be sure which is the outlier - or if both are).
 
+## Data Normalization
 
 ```{r, warning = FALSE}
 # Draw a box plot of the pre-normalized data
@@ -219,8 +230,9 @@ rownames(filtered_data_matrix) <- final_counts_annot$hgnc_symbol
 d <- edgeR::DGEList(counts=filtered_data_matrix)
 d_normFactors <- edgeR::calcNormFactors(d)
 counts_normalized <- as.data.frame(edgeR::cpm(d_normFactors))
+counts_normalized_annot <- cbind(final_counts_annot[1:3], counts_normalized)
 
-head(counts_normalized)
+head(counts_normalized_annot)
 
 ```
 

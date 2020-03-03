@@ -1,0 +1,245 @@
+---
+title: "Assignment 2"
+author: "Darren Chan"
+output:
+  bookdown::html_document2:
+    df_print: paged
+    toc: true
+    fig_caption: yes
+bibliography: A2_bibliography.bib
+---
+
+# Introduction
+
+Herpes @nogalski2019tumor
+
+```{r child='A1_Notebook.Rmd', include=FALSE, eval=TRUE}
+```
+
+# Differential Gene Expression and Preliminary ORA (Results from Assignment 2)
+
+## Differential Gene Expression
+
+```{r}
+
+# Break up the sample names into their constituent parts for mapping to factors
+samples <- data.frame(lapply(colnames(counts_normalized),
+                             FUN=function(x){
+                               unlist(strsplit(x, split = "_"))[c(1, 2)]
+                              }), stringsAsFactors = FALSE)
+colnames(samples) <- colnames(counts_normalized)
+rownames(samples) <- c("infection_agent", "cell_type")
+#samples <- data.frame(t(samples))
+
+# Need to deal with various inconsistencies in the naming scheme
+# The LNA samples have the infection agent and cell type swapped around
+cell_types <- samples["cell_type", ]
+columns_to_swap <- cell_types == "Mock" | cell_types == "HCMV"
+samples["cell_type", columns_to_swap] <- samples["infection_agent", columns_to_swap]
+samples["infection_agent", columns_to_swap] <- cell_types[columns_to_swap]
+
+# The Ad5 and HSV samples do not have cell type labelled (they are all MRC5)
+missing_cell_types <- grepl("^[0-9]", samples["cell_type", ])
+samples["cell_type", missing_cell_types] <- "MRC5"
+
+# Strip the extra characters off of the "TB40/E" strain
+samples["infection_agent", ] <- gsub("TB40/E", "TB40", samples["infection_agent", ])
+
+# Annotate HCMV strains as HCMV
+samples["infection_agent", ] <- gsub("(AD169|FIX|TB40)", 
+                                     "HCMV-\\1", samples["infection_agent", ])
+
+# Samples labelled just "HCMV" are actually HCMV-TB40
+samples["infection_agent", ] <- gsub("^HCMV$", "HCMV-TB40", samples["infection_agent", ])
+
+# Rename references to HFF cells
+hff_cells <- grepl("LNA", samples["cell_type", ])
+samples["cell_type", hff_cells] <- "HFF"
+
+(samples <- data.frame(t(samples)))
+
+```
+
+Sample names were mapped to the two most important factors (infection agent and cell type). Given the inconsistent nature of the naming scheme (e.g. infection agent and cell type not in a consistent order, cell type not always explictly listed), a number of different manipulations were required. <br><br>
+
+```{r}
+
+# Removed unwanted samples
+excluded_columns <- (grepl("HSV|Ad5", samples$infection_agent) | grepl("ARPE19|HFF", 
+                                                                        samples$cell_type))
+normalized_samples_of_interest <- cbind(counts_normalized_annot[1:3], counts_normalized[, !excluded_columns])
+samples <- samples[!excluded_columns, ]
+samples <- droplevels(samples)
+
+# Add new column in samples for strain
+strains <- gsub("(HCMV-)", "", samples$infection_agent)
+samples <- cbind(samples, strains)
+samples$infection_agent <- gsub("HCMV.*", "HCMV", samples$infection_agent)
+
+# Remove any all-zero rows (because of removed samples)
+zero_rows <- apply(normalized_samples_of_interest[, -(1:3)], 1, function(x) !all(x == 0))
+normalized_samples_of_interest <- normalized_samples_of_interest[zero_rows, ]
+
+head(normalized_samples_of_interest)
+
+```
+
+In our analysis, we will only be comparing CMV-infected samples with mock-infected negative controls on MRC5 cells due to large differences in the expression profiles of other infection agents and cell types. Therefore, the HSV1 and Ad5 infection samples as well as the ARPE19 and HFF cell type samples need to be removed. <br><br>
+
+```{r infTypeMdsFig, fig.align='center', fig.cap="MDS Plot of Normalized Data (Coloured by Infection Type - HCMV (Orange), Mock (Green))"}
+
+# Arrange data into matrix
+heatmap_matrix <- normalized_samples_of_interest[, -(1:3)]
+rownames(heatmap_matrix) <- normalized_samples_of_interest$ensembl_gene_id
+heatmap_matrix <- t(scale(t(heatmap_matrix)))
+
+# Map cell types to colours on MDS plot
+infection_type_colours <- samples$infection_agent
+infection_type_colours <- gsub("HCMV", "orange", infection_type_colours)
+infection_type_colours <- gsub("Mock", "green", infection_type_colours)
+
+# Draw MDS plot of data, coloured by cell type
+limma::plotMDS(heatmap_matrix, col = infection_type_colours)
+
+```
+
+```{r cellTypeMdsFig, fig.align='center', fig.cap="MDS Plot of Normalized Data (Coloured by Strain - MRC5 (Red), ARPE19 (Blue), HFF (Orange))"}
+
+# Map strains to colours on MDS plot
+strain_type_colours <- samples$strains[samples$infection_agent != "Mock"]
+strain_type_colours <- gsub("AD169", "red", strain_type_colours)
+strain_type_colours <- gsub("FIX", "orange", strain_type_colours)
+strain_type_colours <- gsub("TB40e", "blue", strain_type_colours)
+strain_type_colours <- gsub("TB40", "purple", strain_type_colours)
+
+# Draw MDS plot of data, coloured by cell type
+limma::plotMDS(heatmap_matrix[, samples$infection_agent != "Mock"], col = strain_type_colours)
+
+```
+
+The first step in determining differences between our two groups of choice is to choose the factors used in the model. An MDS plot of the normalized data (using the Limma package @limma) coloured by infection type (CMV or mock) is shown in Figure \@ref(fig:infTypeMdsFig), which demonstrates quite clearly the differing profile between the two treatments. However, it does not explain all of the variability; colouring the same plot (with the mock treatment removed to zoom in on the infected samples) by the HCMV strain (Figure \@ref(fig:cellTypeMdsFig) shows that there is also some relationship with the strain that was used in the infection. This indicates that in addition to our main factor of analysis (CMV vs. mock transfections), strain should also be taken into account. <br><br>
+
+```{r}
+
+# Limma linear model - code adapted from Ruth Isserlin (2020)
+model_design <- model.matrix(~ samples$infection_agent)
+expressionMatrix <- as.matrix(normalized_samples_of_interest[, -(1:3)])
+rownames(expressionMatrix) <- normalized_samples_of_interest$ensembl_gene_id
+minimalSet <- Biobase::ExpressionSet(assayData = expressionMatrix)
+
+# Fit data to model and compute differential expression
+fit <- limma::lmFit(minimalSet, model_design)
+fit2 <- limma::eBayes(fit, trend=TRUE)
+topfit <- limma::topTable(fit2, 
+                   coef=ncol(model_design),
+                   adjust.method = "BH",
+                   number = nrow(expressionMatrix))
+# Merge hgnc names and ensembl identifiers to topfit table
+output_hits <- merge(normalized_samples_of_interest[, 1:3],
+                     topfit,by.y=0, by.x=1, all.y=TRUE)
+# Sort table by pvalue
+output_hits <- output_hits[order(output_hits$P.Value), ]
+
+# Get the number of genes that pass the threshold (p = 0.05)
+(num_significant_genes_simple <- length(which(output_hits$P.Value < 0.05)))
+
+```
+
+An initial differential gene expression analysis on the two factors was done using code adapted from @isserlin_lec5_2020, using the linear model of the Limma package @limma. Using this, it was determined that `r num_significant_genes_simple` out of `r length(output_hits)` genes were significantly differentially expressed, given a threshold of $p < 0.05$. 0.05 was chosen for the threshold as it is the standard of choice, particularly for more exploratory data/experiments such as this one where we are more interested in screening for genes that might be worthy of further, more rigourous analysis under these conditions. <br><br>
+
+```{r}
+
+# Multiple hypothesis testing correction
+significant_genes_logical <- p.adjust(output_hits$P.Value, method = "bonferroni") < 0.05
+(num_significant_genes_corrected <- sum(significant_genes_logical))
+
+```
+
+The p-values were corrected using the Bonferroni multiple hypothesis correction method, which was chosen due to the large number of samples which passed the threshold (making it feasible to narrow down the search more stringently to get rid of false positives) and the relatively small number of samples and hypotheses (which means that the correction is not as overly conservative as it might be in other samples). `r num_significant_genes_corrected` passed the correction.<br><br>
+
+```{r maplotFig1, fig.align='center', fig.cap="MA Plot of Differentially Expressed Genes"}
+
+colours <- ifelse(significant_genes_logical, "red", "black")
+
+# Show the amount of differentially expressed genes using an MA Plot
+edgeR::maPlot(logAbundance = output_hits$AveExpr, logFC = output_hits$logFC, col = colours)
+
+```
+
+```{r maplotFig2, fig.align='center', fig.cap="MA Plot of Differentially Expressed Genes (Zoomed In)"}
+
+# Remove extreme outliers
+no_outliers <- output_hits[output_hits$logFC < 5000, ]
+
+# Zoom in on the main area of the graph
+edgeR::maPlot(logAbundance = no_outliers$AveExpr, logFC = no_outliers$logFC, 
+              xlim = c(0, 600), lowess = TRUE, col = colours)
+
+```
+
+MA Plots were made of the differentially expressed genes using the EdgeR package (@edgeR), with the Bonferroni-corrected statistically significant genes highlighted in red. Figure \@ref(fig:maplotFig1) is utterly dominated by the large outlier with an expression value of about 160000, which makes it largely useless for analyzing the data. A better overview of the data can be gained by zooming into the <600 mean average (A) area and removing the most extreme outliers for the calculation of the central curve (Figure \@ref(fig:maplotFig2)), which indicates a somewhat upwards-sloping center - as this data is already normalized, this may be indicative of a real difference in total expression between the two treatments. There is not much of a pattern in the statistically significant genes, which appears to have a similar distribution to the rest of the geneset, but there does seem to be some bias away from the midpoint line, which is to be expected. <br><br>
+
+```{r heatmap, fig.align='center', fig.cap="Heatmap of Statistically Significantly Differentially Expressed Genes"}
+
+# Visualize top hits using a heatmap - code adapted from Ruth Isserlin (2020)
+top_hits <- output_hits$ensembl_gene_id[p.adjust(output_hits$P.Value, method = "bonferroni") < 0.05]
+heatmap_matrix_tophits <- t(scale(t(heatmap_matrix[which(rownames(heatmap_matrix) %in% top_hits),])))
+
+if(min(heatmap_matrix_tophits) == 0){
+  heatmap_col = circlize::colorRamp2(c(0, max(heatmap_matrix_tophits)), c("white", "red"))
+} else {
+  heatmap_col = circlize::colorRamp2(c(min(heatmap_matrix_tophits), 0, 
+                             max(heatmap_matrix_tophits)), c("blue", "white", "red"))
+}
+
+(current_heatmap <- ComplexHeatmap::Heatmap(as.matrix(heatmap_matrix_tophits),
+                                            cluster_rows = TRUE,
+                                            cluster_columns = TRUE,
+                                            show_row_dend = TRUE,
+                                            show_column_dend = TRUE,
+                                            col = heatmap_col,
+                                            show_column_names = TRUE,
+                                            show_row_names = FALSE,
+                                            show_heatmap_legend = TRUE))
+
+```
+
+A heatmap of all genes passing the Bonferroni multiple hypothesis correction test is displayed in Figure \@ref(fig:heatmap), made using the ComplexHeatmap package (@ComplexHeatmap) and adapted from code by @isserlin_lec5_2020. There is a very strong clustering of the two factors, with all the HCMV-infected samples and all the mock-infected samples segregated into two highly distinct categories. This was also reflected in the genes, which were also cleanly seperated into two categories (either strong to very strongly expressed across the HCMV samples and weak to very weak in the mock or vice versa - there were virtually no cases of a gene whose change in expression in one particular was a different sign to any of the others in that factor), neatly seperating the heatmap into 4 strongly-coloured quadrants. While quite stark, it is not completely unexpected given the wide seperation of the conditions in the MDS plot (Figure \@ref(infTypeMdsFig:figs) or the fact that this geneset was chosen using the generally highly conservative Bonferroni-corrected, which would ensure that only highly differentiated genes pass the filter and are plotted in the heatmap. The large number of statistically significant genes, even under the Bonferroni correction, may also be a reflection of a generally large change in expression overall between the two factors, so choosing the most differentiated ones is likely to reflect this as well.
+
+## Thresholded Over-Representation Analysis
+
+Which method did you choose and why?
+
+What annotation data did you use and why? What version of the annotation are you using?
+
+```{r}
+
+# Get the list of upregulated genes
+upregulated_genes <- output_hits[output_hits$P.Value < 0.05 & output_hits$logFC > 0, ]
+length(upregulated_genes)
+
+```
+
+```{r}
+
+# Get the list of downregulated genes
+downregulated_genes <- output_hits[output_hits$P.Value < 0.05 & output_hits$logFC < 0, ]
+length(downregulated_genes)
+
+```
+
+```{r}
+# How many genesets were returned with what thresholds?
+```
+
+```{r}
+# Run the analysis using the up-regulated set of genes, and the down-regulated set of genes separately. How do these results compare to using the whole list (i.e all differentially expressed genes together vs. the up-regulated and down regulated differentially expressed genes separately)?
+```
+
+## Interpretation
+
+Do the over-representation results support conclusions or mechanism discussed in the original paper?
+
+Can you find evidence, i.e. publications, to support some of the results that you see. How does this evidence support your results.
+
+# References
