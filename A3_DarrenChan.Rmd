@@ -1,0 +1,217 @@
+---
+title: "Assignment 3"
+author: "Darren Chan"
+output:
+  bookdown::html_document2:
+    df_print: paged
+    toc: true
+    fig_caption: yes
+bibliography: 
+  - A2_bibliography.bib
+  - A3_bibliography.bib
+nocite: | 
+  @r, @bookdown, @knit, @RCurl, @limma, @Biobase, @ggplot2, @stringr
+---
+
+# Introduction
+
+Human cytomegalovirus (Human betaherpesvirus 5, HCMV, CMV) infections are found across a large proportion of the human population, though usually latent and asymptomatic (@nogalski2019tumor). However, they can sometimes cause infection in immunosuppressed individuals and have been associated with certain cancers (@griffiths2015pathogenesis) - in particular being observed to be induce a significant increase in transcription of HSATII, known to be associated with gene regulation of many different processes and implicated in many cancers (@hall2017demethylated).
+To test the effects of HCMV infection on cells, Human lung fibroblasts (MRC-5/MRC5), human retinal pigment epithelial (ARPE-19), and human foreskin fibroblasts (HFF) were infected with HCMV as well as herpes simplex virus (HSV1) and adenovirus serotype 5 (Ad5) as comparisons/controls, and RNASeq data taken from each sample using Illumina HiSeq 2000 (@hall2017demethylated).
+
+# Data Set Pathway and Network Analysis (Results from Assignment 3)
+
+## Non-Thresholded Gene Set Enrichment Analysis
+
+```{r message=FALSE}
+# Non-thresholded enrichment analysis - code adapted from Ruth Isserlin (2019)
+
+# Install required R and bioconductor packages
+tryCatch(expr = { library("RCurl")}, 
+         error = function(e) {  install.packages("RCurl")}, 
+         finally = library("RCurl"))
+
+# Use libraries
+tryCatch(expr = { library("limma")}, 
+         error = function(e) { source("https://bioconductor.org/biocLite.R")
+           biocLite("limma")}, 
+         finally = library("limma"))
+tryCatch(expr = { library("Biobase")}, 
+         error = function(e) { source("https://bioconductor.org/biocLite.R")
+           biocLite("Biobase")}, 
+         finally = library("Biobase"))
+tryCatch(expr = { library("ggplot2")}, 
+         error = function(e) { install.packages("ggplot2")}, 
+         finally = library("ggplot2"))
+
+# path to GSEA jar 
+# In order to run GSEA automatically you need to specify the path to the gsea jar file.
+# With the latest release of gsea (4.0.2) they no longer release a bundled jar
+# and instead release a scriptted way to launch the gsea client.
+# specify the java version as 11 if you are using the later version gsea
+# the gsea_jar also needs to be the full path to the GSEA 4.0.2 directory that you
+# downloaded from GSEA. for example (/Users/johnsmith/GSEA_4.0.2/gsea-cli.sh)
+gsea_jar <- "/home/bioc/rstudio/GSEA_4.0.2/gsea-cli.sh"
+java_version <- 11
+
+#navigate to the directory where you put the downloaded protocol files.
+working_dir <- "GSEA_Files"
+
+#Gsea takes a long time to run.  If you have already run GSEA manually or previously there is no need to re-run GSEA.  Make sure the gsea results are in the current directory and the notebook will be able to find them and use them.
+gsea_directories <- list.files(path = working_dir, pattern = "\\.GseaPreranked")
+if(length(gsea_directories) > 0){
+  run_gsea = FALSE
+} else {
+  run_gsea = TRUE
+}
+
+# leave blank if you want the notebook to discover the gsea directory for itself
+#gsea_directory = paste(working_dir,"Mesen_vs_Immuno.GseaPreranked.1497635459262",sep="/") 
+gsea_directory = ""
+analysis_name <- "Infected_Fibroblast_GSEA"
+rnk_file <- "rnk_file.rnk"
+expression_file <- "expression_file.gct"
+classes_file <- "classes_file.cls"
+
+#list all the files on the server
+gmt_url = "http://download.baderlab.org/EM_Genesets/current_release/Human/symbol/"
+filenames = getURL(gmt_url)
+tc = textConnection(filenames)
+contents = readLines(tc)
+close(tc)
+
+#get the gmt that has all the pathways and does not include terms inferred from electronic annotations(IEA)
+#start with gmt file that has pathways only
+rx = gregexpr("(?<=<a href=\")(.*.GOBP_AllPathways_no_GO_iea.*.)(.gmt)(?=\">)",
+              contents, perl = TRUE)
+gmt_file = unlist(regmatches(contents, rx))
+
+dest_gmt_file <- file.path(working_dir, paste("Supplementary_Table3_", gmt_file, sep="") )
+
+download.file(
+    paste(gmt_url,gmt_file,sep=""),
+    destfile=dest_gmt_file
+)
+
+#if you are using GSEA 4.0.2 then you need to use the command script
+# as opposed to launching GSEA through java. 
+# in the later version of GSEA command line implementation the following 
+# parameters are no longer valid: -permute gene_set,  -num 100, -gui false
+# no longer need to specify the whole path to the GseaPreranked package
+if(run_gsea && java_version == "11"){
+  command <- paste("", gsea_jar,  "GSEAPreRanked -gmx", dest_gmt_file, "-rnk",
+          file.path(working_dir, rnk_file), 
+          "-collapse false -nperm 1000 -scoring_scheme weighted -rpt_label ", 
+          analysis_name, 
+          "  -plot_top_x 0 -rnd_seed 12345 -set_max 200 -set_min 15 -zip_report false -out",
+          working_dir, " > gsea_output.txt", sep=" ")
+  #command <- paste("", gsea_jar,  "GSEAPreRanked -gmx", dest_gmt_file, 
+  #        "-collapse false -mode Max_probe -norm meandiv -nperm 1000 -rnk",
+  #        file.path(working_dir, rnk_file), 
+  #        "-scoring_scheme weighted -rpt_label ", analysis_name, 
+  #        " -create_svgs false -include_only_symbols true -make_sets true -plot_top_x 0 -rnd_seed 12345 -set_max 200 -set_min 15 -zip_report false -out",
+  #        working_dir, " > gsea_output.txt", sep=" ")
+  system(command)
+} else if (run_gsea) {
+  command <- paste("java  -Xmx1G -cp", gsea_jar,  "xtools.gsea.GseaPreranked -gmx",
+                   dest_gmt_file, "-rnk", file.path(working_dir,rnk_file), 
+                   "-collapse false -nperm 1000 -permute gene_set -scoring_scheme weighted
+                   -rpt_label ", analysis_name, 
+                   "  -num 100 -plot_top_x 20 -rnd_seed 12345  -set_max 200 -set_min 15
+                   -zip_report false -out", working_dir, "-gui false > gsea_output.txt", 
+                   sep=" ")
+  system(command)
+}
+
+```
+
+A non-thresholded gene set enrichment analysis was also performed on the gene expression data with GSEA 4.0.2 (@mootha2003pgc, @subramanian2005gene) and code from @baderlab_em_pipeline, using the log-fold difference in the gene expression and the latest non-electronically inferred human genesets (as of April 2, 2020) from the Bader Lab (@merico2010enrichment).
+
+```{r gseaUpregulated, message=FALSE, warning=FALSE, fig.align='center'}
+if(gsea_directory == ""){
+  gsea_directories <- list.files(path = working_dir, pattern = "\\.GseaPreranked")
+
+  #get the details on the files
+  details = file.info(file.path(getwd(),working_dir,gsea_directories))
+  #order according to newest to oldest
+  details = details[with(details, order(as.POSIXct(mtime),decreasing = TRUE)), ]
+
+  #use the newest file:
+  gsea_output_dir <- row.names(details)[1]
+} else {
+  gsea_output_dir <- gsea_directory
+}
+
+gsea_output_number <- substring(gsea_output_dir, 
+                                regexpr("\\.[^\\.]*$", gsea_output_dir)[[1]] + 1)
+gsea_positive_report <- paste(gsea_output_dir, "/gsea_report_for_na_pos_", 
+                              gsea_output_number, ".xls", sep = "")
+gsea_negative_report <- paste(gsea_output_dir, "/gsea_report_for_na_neg_", 
+                              gsea_output_number, ".xls", sep = "")
+
+# Need to parse tables manually because read.table does not work
+parse_gsea_data <- function(fileName) {
+  lines <- read.table(file = fileName, sep = '\n', header = FALSE)
+  
+  # Split all lines by tab
+  split_lines <- (lapply(lines, stringr::str_split, pattern = '\t'))$V1
+  
+  # Convert to data frame
+  gsea_data <- as.data.frame(do.call(rbind, split_lines[-1]))
+  colnames(gsea_data) <- split_lines[1][[1]]
+  
+  # Clean up data frame
+  gsea_data <- gsea_data[c(-2, -3, -12)] # Empty/duplicate columns
+  split_name <- (lapply(gsea_data[1], stringr::str_split, pattern = '%'))$NAME
+  split_name_frame <- as.data.frame(do.call(rbind, split_name))
+  split_name_frame <- split_name_frame[-4]
+  colnames(split_name_frame) <- c("NAME", "SOURCE", "CODE")
+  gsea_data <- cbind(split_name_frame, gsea_data[-1])
+  
+  return(gsea_data)
+}
+
+# NOTE: na_negative = HCMV-infected (i.e. upregulated)
+gsea_negative_table <- parse_gsea_data(gsea_negative_report)
+
+knitr::kable(gsea_negative_table[1:30, c(-3)], type="html", 
+             caption = "Gene Set Enrichment Analysis for Upregulated Genes")
+```
+
+Table \@ref(tab:gseaUpregulated) shows the top genesets found by GSEA in upregulated (HCMV-infected) cell expression data, which similarly to the Thresholded ORA has a significant proportion of biosynthetic pathways. Interestingly, there are also a large number of genes related to cellular metabolism and a few for protein synthesis, categories that were not observed in the Thresholded ORA but fit well in the context of the cancer-like activity observed of the HCMB-infected cells, given their propsenity for rapid growth and reproduction.
+
+```{r gseaDownregulated, warning=FALSE, fig.align='center'}
+
+# NOTE: na_positive = mock-infected (i.e. downregulated)
+gsea_positive_table <- parse_gsea_data(gsea_positive_report)
+
+knitr::kable(gsea_positive_table[1:30, c(-3)], type="html", 
+             caption = "Gene Set Enrichment Analysis for Downregulated Genes")
+```
+
+Like the Thresholded ORA analysis, signalling and structural gene sets were observed as downregulated in the HCMV cells (Table \@ref(tab:gseaDownregulated)). Notably, however, the largest category of sets here are those relating to cell development and differentiation, which was not observed in the Thresholded ORA. This, however, still ties in well with the observation that HCMV-infected cells acquire a cancer-like phenotype and expression profile, as a loss of differentiation is often associated with cancer.
+
+The comparison between the two gene set analyses is fairly straightforward in that the top sets at each side were generally consistent with each other, at least insofar as it all supports to general hypothesis. However, there does generally remain issues with how many of the top genests should be compared - while Thresholded ORA provides a clear cutoff at which the sets are no longer considered, Non-Thresholded GSEA is more ambiguous as to this.
+
+## Visualizing Gene Set Enrichment Analysis in Cytoscape
+
+```{r basicEMMap, fig.align='center', fig.cap="Enrichment Map of Non-Thresholded GSEA Results (Coloured by Enriched Infection Type - HCMV (Blue), Mock (Red))"}
+knitr::include_graphics("figures/Infected_Fibroblast_GSEA_all.png")
+```
+
+The Non-Thresholded GSEA results were visualized (Figure \@ref(fig:basicEMMap)) using the EnrichmentMap App on Cytoscape (@merico2010enrichment, @shannon2003cytoscape). As all of the genes enriched in the upregulated/HCMV-infected cells have a high rather than low Q-value, filtering was done with the P-value, using a threshold of 0.075, and the default edge similarity cutoff of 0.375 was used. There are 1046 nodes and 3146 edges in the network.
+
+```{r annotatedEMMap, fig.align='center', fig.cap="Annotated Enrichment Map of Non-Thresholded GSEA Results (Coloured by Enriched Infection Type - HCMV (Blue), Mock (Red))"}
+knitr::include_graphics("figures/Infected_Fibroblast_GSEA_annotated.png")
+```
+
+The network was annotated largely using the default parameters (MCL clustering algorithm with similarity_coefficient edge weight and GS_DESCR to create the labels), but with the granularity parameter for the MCL clustering algorithm reduced to 2.0 to get larger clusters (Figure \@ref(fig:annotatedEMMap)). Many of the clusters were related to the general categories identified earlier (e.g. actin polymerization filament, decay complex translation, superpathway cholesteral pathway) with the expected bias towards downregulated categories (given most of the nodes were downregulated). Interestingly there were a number of clusters relationing to muscles (cardiac skeletal muscle, contraction muscle sliding) which do not seem obviously related to the general cancer theme/hypothesis but may be a subset of the developmental/differentiating gene sets identified earlier, as well as a number of others which stood out as novel (e.g. plate endochondrial bone, coagulation wounding homeostasis) but don't seem to have a common theme.
+
+```{r themeEMMap, fig.align='center', fig.cap="Theme Summary Network of Non-Thresholded GSEA Results (Coloured by Enriched Infection Type - HCMV (Blue), Mock (Red))"}
+knitr::include_graphics("figures/Infected_Fibroblast_GSEA_summary_network.png")
+```
+
+Finally, the clusters were collapsed and made into a theme network (Figure \@ref(fig:themeEMMap)), 328 nodes and 82 edges in all (most of the nodes in the original network were unconnected singletons or small clusters). There is, however, one fairly large network connecting a number of clusters together (corresponding to the largest cluster of the original network), which consists largely of signalling and developmental pathway-related clusters.
+
+## Interpretation and Detailed View of Results
+
+# References

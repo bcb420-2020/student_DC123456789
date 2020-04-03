@@ -38,6 +38,9 @@ This dataset is of interest to me because it explores how cells change when expo
 
 ```{r}
 # Convert from counts to counts per million
+if (!requireNamespace("edgeR", quietly = TRUE)) {
+  BiocManager::install("edgeR")
+}
 cpms <- edgeR::cpm(raw_counts_table[, 2:dim(raw_counts_table)[2]])
 
 # Get rid of low counts to clean - need at least 2 samples with 1 count per million
@@ -59,6 +62,12 @@ rownames(counts_table) <- gsub("\\..*", "", counts_filtered[, 1])
 colnames(counts_table)[1] <- "ensembl_gene_id_version"
 
 # Load Ensembl mart
+if (!requireNamespace("biomaRt", quietly = TRUE)) {
+  BiocManager::install("biomaRt")
+}
+if (packageVersion("rlang") != '0.4.5') {
+  install.packages("rlang")
+}
 ensembl <- biomaRt::useEnsembl(biomart = "ensembl", mirror = "uswest")
 ensembl <- biomaRt::useDataset("hsapiens_gene_ensembl",mart=ensembl)
 

@@ -145,6 +145,12 @@ output_hits <- merge(normalized_samples_of_interest[, 1:3],
 # Sort table by pvalue
 output_hits <- output_hits[order(output_hits$P.Value), ]
 
+# Save rankfile (logFC)
+rankfile_columns <- data.frame(output_hits$hgnc_symbol, output_hits$logFC)
+dir.create(file.path(getwd(), "GSEA_Files"), showWarnings = FALSE)
+write.table(rankfile_columns, file = "GSEA_Files/rnk_file.rnk", sep = "\t",
+            row.names = FALSE, col.names = FALSE, quote = FALSE)
+
 # Get the number of genes that pass the threshold (p = 0.05)
 (num_significant_genes_simple <- length(which(output_hits$P.Value < 0.05)))
 
@@ -190,6 +196,9 @@ MA Plots were made of the differentially expressed genes using the EdgeR package
 top_hits <- output_hits$ensembl_gene_id[p.adjust(output_hits$P.Value, method = "bonferroni") < 0.05]
 heatmap_matrix_tophits <- t(scale(t(heatmap_matrix[which(rownames(heatmap_matrix) %in% top_hits),])))
 
+if (!requireNamespace("circlize", quietly = TRUE)) {
+  install.packages("circlize")
+}
 if(min(heatmap_matrix_tophits) == 0){
   heatmap_col = circlize::colorRamp2(c(0, max(heatmap_matrix_tophits)), c("white", "red"))
 } else {
@@ -197,6 +206,9 @@ if(min(heatmap_matrix_tophits) == 0){
                              max(heatmap_matrix_tophits)), c("blue", "white", "red"))
 }
 
+if (!requireNamespace("ComplexHeatmap", quietly = TRUE)) {
+  BiocManager::install("ComplexHeatmap")
+}
 (current_heatmap <- ComplexHeatmap::Heatmap(as.matrix(heatmap_matrix_tophits),
                                             cluster_rows = TRUE,
                                             cluster_columns = TRUE,
@@ -382,4 +394,3 @@ The over-representation results would appear to support the hypothesis of HCMV i
 
 The downregulation of cell structure/interaction genes, implying the loss of cellular structure and intercellular organization, are also strongly associated with cancer cell phenotypes (@hinck2014changes). The downregulation of genes associated with junctions and cellular adhesions is characteristic of the epithelial-mesenchymal transition that leads to metastasis in many cancers (@knights2012holding), as are changes in interactions with the extracellular matrix (@wolf2009mapping). Finally, changes in signalling pathways have long been known to be a core part of cancer cell progression, with the over-represented pathways including several known to be implicated in cancer occurence and progression, such as those of MET (@ho2015clinical), PI3K (@martini2014pi3k), and RHO GTPases (@vega2008rho). Given that nearly all of the more specific genesets identified by the threshold over-representation analysis have a strong relationship with some aspect of cancer cell phenotypes and oncological progression, we can safely say that our data supports the idea that HCMV infection changes gene regulation in a way that is similar to cancer cell expression profiles, and is possibly a driving factor in the incidence of the disease.<br>
 
-# References
